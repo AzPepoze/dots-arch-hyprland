@@ -56,22 +56,20 @@ launch_messenger() {
 #-------------------------------------------------------
 # Background Services
 #-------------------------------------------------------
-launch_app "rclone sync" "bash $HOME/az-arch-hyprland/scripts/rclone/sync.sh &"
-bash $HOME/az-arch-hyprland/scripts/utils/notification_logger.sh &
+# launch_app "rclone sync" "bash $HOME/az-arch-hyprland/scripts/rclone/sync.sh &"
+# bash $HOME/az-arch-hyprland/scripts/utils/notification_logger.sh &
 
 #-------------------------------------------------------
 # Startup Programs
 #-------------------------------------------------------
 launch_app "Linux Wallpaper Engine GUI" "sleep 1 && linux-wallpaperengine-gui --minimized &"
-
 launch_messenger
-
-launch_app "Discord" "hyprctl dispatch exec \"[workspace 1 silent] discord\"" 2
-launch_app "Edge App" "hyprctl dispatch exec '[tile;] microsoft-edge-dev --app=chrome-extension://ophjlpahpchlmihnnnihgmmeilfjmjjc/index.html'"
+# launch_app "Discord" "hyprctl dispatch exec \"[workspace 1 silent] discord\"" 2
+# launch_app "Edge App" "hyprctl dispatch exec '[tile;] microsoft-edge-dev --app=chrome-extension://ophjlpahpchlmihnnnihgmmeilfjmjjc/index.html'"
 launch_app "Wineboot (Delayed)" "hyprctl dispatch exec \"[workspace 4 silent] sh -c 'sleep 10 && wineboot'\""
 
 # scratchpad
-launch_app "YouTube Music" "hyprctl dispatch exec \"[workspace special silent; float; size 30% 100%; move 0 0] youtube-music\""
+# launch_app "YouTube Music" "hyprctl dispatch exec \"[workspace special silent; float; size 30% 100%; move 0 0] youtube-music\""
 
-sleep 5
-hyprctl dispatch workspace 1
+# sleep 5
+# hyprctl dispatch workspace 1
