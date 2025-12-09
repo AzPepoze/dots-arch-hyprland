@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define source and destination paths
-SOURCE_FILE="/home/azpepoze/az-arch-hyprland/cli/amogus.sh"
+SOURCE_FILE="/home/azpepoze/dots-arch-hyprland/cli/amogus.sh"
 DEST_DIR="/usr/local/bin"
 DEST_FILE="$DEST_DIR/amogus"
 

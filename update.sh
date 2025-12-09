@@ -32,7 +32,7 @@ source "$repo_dir/scripts/utils/list_gpu.sh" # Source list_gpu.sh for GPU valida
 
 update_repo() {
     echo
-    _log INFO "Updating az-arch-hyprland Repository..."
+    _log INFO "Updating dots-arch-hyprland Repository..."
     echo
 
     git fetch origin

@@ -10,9 +10,9 @@ set -e
 #-------------------------------------------------------
 # Configuration
 #-------------------------------------------------------
-# Get the directory of the current script (e.g., /home/azpepoze/az-arch-hyprland/cli)
+# Get the directory of the current script (e.g., /home/azpepoze/dots-arch-hyprland/cli)
 CURRENT_SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-# Get the parent directory of the current script (e.g., /home/azpepoze/az-arch-hyprland)
+# Get the parent directory of the current script (e.g., /home/azpepoze/dots-arch-hyprland)
 REPO_DIR="$(dirname "$CURRENT_SCRIPT_DIR")"
 CONFIGS_DIR_SYSTEM="$HOME"
 CONFIG_FILE="$REPO_DIR/config.json" # Path to the new config.json

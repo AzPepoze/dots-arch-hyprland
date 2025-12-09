@@ -1,4 +1,4 @@
-REPO_DIR="$HOME/az-arch-hyprland"
+REPO_DIR="$HOME/dots-arch-hyprland"
 cd "$REPO_DIR"
 
 if [ -z "$1" ]; then
