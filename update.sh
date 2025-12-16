@@ -30,26 +30,7 @@ source "$repo_dir/scripts/install_modules/helpers.sh"
 source "$repo_dir/scripts/install_modules/04-apps.sh"
 source "$repo_dir/scripts/utils/list_gpu.sh" # Source list_gpu.sh for GPU validation
 
-update_repo() {
-    echo
-    _log INFO "Updating dots-arch-hyprland Repository..."
-    echo
 
-    git fetch origin
-
-    LOCAL_COMMIT=$(git rev-parse HEAD)
-    REMOTE_COMMIT=$(git rev-parse origin/main)
-
-    if [ "$LOCAL_COMMIT" != "$REMOTE_COMMIT" ]; then
-        _log INFO "Local repository is behind origin/main. Updating..."
-        git reset --hard origin/main
-        _log SUCCESS "Repository updated. Please re-run this script manually if it does not restart automatically."
-        _log INFO "Re-running the update script..."
-        exec "$0" "$@"
-    else
-        _log INFO "Repository is already up-to-date."
-    fi
-}
 
 update_system_packages() {
     if ! command -v paru &> /dev/null; then
@@ -168,7 +149,6 @@ load_configs() {
 
 # fastfetch
 
-update_repo
 
 echo
 _log INFO "Starting full system update process..."
