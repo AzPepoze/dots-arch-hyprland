@@ -1,9 +1,15 @@
 #!/bin/bash
 
+if ! command -v rate-mirrors &> /dev/null; then
+    echo "Error: rate-mirrors is not installed."
+    echo "Please install it using: sudo pacman -S rate-mirrors"
+    exit 1
+fi
+
 echo
 echo "Ranking Arch Linux mirrors..."
 TMPFILE="$(mktemp)"
-sudo true # Prompt for password once
+sudo true
 rate-mirrors --save="$TMPFILE" arch  \
   && sudo mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist-backup \
   && sudo mv "$TMPFILE" /etc/pacman.d/mirrorlist
