@@ -175,8 +175,8 @@ install_rate_mirrors_and_rank() {
     _log INFO "Installing rate-mirrors..."
     install_paru_package "rate-mirrors" "rate-mirrors"
 
-    _log INFO "Running cli/rank-mirrors.sh to rank mirrors..."
-    bash "$repo_dir/cli/rank-mirrors.sh"
+    _log INFO "Running cli/rank_mirrors.sh to rank mirrors..."
+    bash "$repo_dir/cli/rank_mirrors.sh"
     _log SUCCESS "rate-mirrors installed and mirrors ranked."
 }
 

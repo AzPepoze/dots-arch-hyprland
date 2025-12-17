@@ -79,10 +79,10 @@ while true; do
             ;;
         5)
             echo "Starting Full Update..."
-            if [ -f "cli/rank-mirrors.sh" ]; then
-                bash cli/rank-mirrors.sh
+            if [ -f "cli/rank_mirrors.sh" ]; then
+                bash cli/rank_mirrors.sh
             else
-                echo "Error: cli/rank-mirrors.sh not found!"
+                echo "Error: cli/rank_mirrors.sh not found!"
             fi
             if [ -f "update.sh" ]; then
                 bash update.sh --full
