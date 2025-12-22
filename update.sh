@@ -106,13 +106,30 @@ update_npm_global_packages() {
     sudo npm update -g
     _log SUCCESS "Global npm packages updated."
 
-    # Check and update @google/gemini-cli
-    if command -v gemini &> /dev/null; then
-        _log INFO "Gemini CLI found. Updating to nightly version..."
-        sudo npm install -g @google/gemini-cli@nightly
-        _log SUCCESS "Gemini CLI updated to nightly."
+   	if command -v gemini &> /dev/null; then
+        _log INFO "Checking for updates..."
+
+        CURRENT_VERSION=$(gemini --version)
+        LATEST_STABLE=$(npm view @google/gemini-cli@latest version 2>/dev/null)
+        LATEST_NIGHTLY=$(npm view @google/gemini-cli@nightly version 2>/dev/null)
+
+        TARGET_VERSION=$(printf "%s\n%s" "$LATEST_STABLE" "$LATEST_NIGHTLY" | sort -V | tail -n1)
+
+        if [[ "$CURRENT_VERSION" != "$TARGET_VERSION" ]]; then
+            CHECK_HIGHER=$(printf "%s\n%s" "$CURRENT_VERSION" "$TARGET_VERSION" | sort -V | tail -n1)
+            
+            if [[ "$CHECK_HIGHER" == "$TARGET_VERSION" ]]; then
+                _log INFO "Updating from $CURRENT_VERSION to $TARGET_VERSION..."
+                sudo npm install -g @google/gemini-cli@"$TARGET_VERSION"
+                _log SUCCESS "Gemini CLI updated to $TARGET_VERSION."
+            else
+                _log INFO "Current version ($CURRENT_VERSION) is up to date."
+            fi
+        else
+            _log INFO "Gemini CLI is already up to date ($CURRENT_VERSION)."
+        fi
     else
-        _log INFO "Gemini CLI not found. Skipping Gemini CLI update."
+        _log INFO "Gemini CLI not found. Skipping update."
     fi
 }
 

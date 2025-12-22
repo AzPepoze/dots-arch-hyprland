@@ -153,7 +153,16 @@ add_fstab_entry() {
             sudo chown "$USER:$USER" "$mount_point" # Give ownership to the current user
         fi
 
-        local fstab_entry="UUID=$UUID $mount_point $FSTYPE defaults,nofail 0 2 $FSTAB_MANAGED_TAG"
+        local mount_options="defaults,nofail"
+        local dump_pass="0 2"
+
+        if [ "$FSTYPE" = "ntfs" ]; then
+            FSTYPE="ntfs-3g"
+            mount_options="uid=1000,gid=1000,rw,user,exec,nofail,umask=000"
+            dump_pass="0 0"
+        fi
+
+        local fstab_entry="UUID=$UUID $mount_point $FSTYPE $mount_options $dump_pass $FSTAB_MANAGED_TAG"
         
         echo ">> Appending the following entry to $FSTAB_FILE:"
         echo "$fstab_entry"
