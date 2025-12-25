@@ -49,7 +49,7 @@ cleanup_coredumps() {
     echo " Cleaning Up Systemd Coredumps"
     echo "============================================================="
     echo "Removing all coredump files..."
-    sudo find /var/lib/systemd/coredump/ -maxdepth 1 -type f -delete
+    sudo rm -rf /var/lib/systemd/coredump/*
 }
 
 cleanup_pnpm_store() {
