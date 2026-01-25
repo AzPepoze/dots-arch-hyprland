@@ -203,12 +203,12 @@ set timeout 120
 
 expect {
     -re "Conflict detected:.*monitors\\.conf" {
-        expect -re "Enter your choice \\(1-8\\):" {
+        expect -re "Enter your choice \\(1-8*" {
             send "2\r"
         }
         exp_continue
     }
-    -re "Enter your choice \\(1-8\\):" {
+    -re "Enter your choice \\(1-8*" {
         send "1\r"
         exp_continue
     }
