@@ -61,6 +61,13 @@ def get_install_items(repo_dir):
         },
         {
             "type": "essential",
+            "text": "Install hyprshutdown",
+            "func": "install_hyprshutdown",
+            "group": "Hyprland Utilities",
+            "description": "Installs hyprshutdown, a utility to gracefully shut down Hyprland.",
+        },
+        {
+            "type": "essential",
             "text": "Install Ulauncher",
             "func": "install_ulauncher",
             "group": "Application Launcher",
@@ -133,17 +140,18 @@ def get_install_items(repo_dir):
         {
             "type": "essential",
             "text": "Install Flatpak",
-            "func": "install_flatpak",
             "group": "Package Managers",
+            "func": "install_flatpak",
             "description": "Installs Flatpak, a universal packaging system for Linux applications, providing sandboxed environments.",
         },
         {
             "type": "essential",
-            "text": "Install `downgrade` utility",
+            "text": "Install downgrade utility",
             "func": "install_downgrade",
             "group": "Package Managers",
-            "description": "Installs `downgrade`, a utility to downgrade one or more packages to a version in your cache or from the Arch Linux Archive.",
+            "description": "Installs downgrade, a utility to downgrade one or more packages to a version in your cache or from the Arch Linux Archive.",
         },
+
         {
             "type": "optional",
             "text": "Install npm",
@@ -246,7 +254,7 @@ def get_install_items(repo_dir):
             "description": "Installs the Catppuccin theme for Ulauncher.",
         },
         {
-            "type": "optional",
+            "type": "essential",
             "text": "Install VS Code Insiders",
             "func": "install_vscode_insiders",
             "group": "Development Tools",
@@ -295,11 +303,11 @@ def get_install_items(repo_dir):
             "description": "Installs Nomacs, a fast and easy-to-use image viewer.",
         },
         {
-            "type": "essential",
-            "text": "Install YouTube Music",
-            "func": "install_youtube_music",
+            "type": "optional",
+            "text": "Install YouTube Music (Pear)",
+            "func": "install_youtube_music_pear",
             "group": "Graphics & Media",
-            "description": "Installs YouTube Music as a standalone application.",
+            "description": "Installs YouTube Music (Pear Desktop).",
         },
         {
             "type": "optional",
@@ -324,13 +332,13 @@ def get_install_items(repo_dir):
         },
         {
             "type": "optional",
-            "text": "Install Microsoft Edge (Dev)",
-            "func": "install_ms_edge",
+            "text": "Install Microsoft Edge (Stable)",
+            "func": "install_ms_edge_stable",
             "group": "Web Browsers",
-            "description": "Installs the Microsoft Edge (Dev) browser.",
+            "description": "Installs the Microsoft Edge (Stable) browser.",
         },
         {
-            "type": "optional",
+            "type": "essential",
             "text": "Install Zen Browser",
             "func": "install_zen_browser",
             "group": "Web Browsers",
@@ -358,7 +366,7 @@ def get_install_items(repo_dir):
             "description": "Installs QDirStat, a graphical disk usage display.",
         },
         {
-            "type": "essential",
+            "type": "optional",
             "text": "Install GParted (Partition Editor)",
             "func": "install_gparted",
             "group": "System Utilities",
@@ -373,17 +381,10 @@ def get_install_items(repo_dir):
         },
         {
             "type": "optional",
-            "text": "Install rclone",
-            "func": "install_rclone",
+            "text": "Install gdrive-bisync (Google Drive)",
+            "func": "install_gdrive_bisync",
             "group": "Cloud Storage",
-            "description": "Installs rclone, a command-line program to manage files on cloud storage.",
-        },
-        {
-            "type": "optional",
-            "text": "Setup Google Drive with rclone",
-            "func": "setup_rclone_gdrive",
-            "group": "Cloud Storage",
-            "description": "Sets up Google Drive integration with rclone for cloud storage synchronization.",
+            "description": "Installs gdrive-bisync, a Google Drive client for Linux.",
         },
         {
             "type": "optional",
@@ -456,13 +457,7 @@ def get_install_items(repo_dir):
             "group": "Drivers & Modules",
             "description": "Installs the necessary drivers for MX002 series drawing tablets.",
         },
-        {
-            "type": "essential",
-            "text": "Install CoolerControl",
-            "func": "install_coolercontrol",
-            "group": "Hardware Control",
-            "description": "Installs CoolerControl, a GUI application for controlling fan speeds and RGB lighting on various liquid coolers.",
-        },
+
         {
             "type": "optional",
             "text": "Install Linux Wallpaper Engine",
@@ -473,8 +468,8 @@ def get_install_items(repo_dir):
         {
             "type": "optional",
             "text": "Install Linux Wallpaper Engine GUI",
-            "func": "install_wallpaper_engine_gui_manual",
+            "func": "install_wallpaper_engine_gui",
             "group": "Wallpaper Engine",
-            "description": "Provides instructions for manually installing the GUI for Linux Wallpaper Engine.",
+            "description": "Installs the GUI for Linux Wallpaper Engine using paru.",
         },
     ]

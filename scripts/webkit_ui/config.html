@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Az Arch Configurator</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .config-container {
+            padding: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .config-group {
+            background-color: var(--ctp-surface0);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--ctp-surface1);
+        }
+
+        .config-group h2 {
+            margin-top: 0;
+            color: var(--ctp-mauve);
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--ctp-surface1);
+            padding-bottom: 10px;
+        }
+
+        .form-control {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--ctp-text);
+            font-weight: 500;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            background-color: var(--ctp-surface0);
+            border: 1px solid var(--ctp-surface1);
+            color: var(--ctp-text);
+            font-family: inherit;
+            appearance: none; /* Remove default arrow */
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cdd6f4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+        }
+        
+        .form-select:focus {
+            outline: none;
+            border-color: var(--ctp-mauve);
+        }
+
+        .form-select option {
+            background-color: var(--ctp-surface0);
+            color: var(--ctp-text);
+            padding: 10px;
+        }
+
+        .switch-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding: 12px;
+            background-color: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius-sm);
+        }
+
+        .switch-label-group {
+            flex: 1;
+        }
+
+        .switch-title {
+            font-weight: 500;
+            color: var(--ctp-text);
+            display: block;
+        }
+
+        .switch-desc {
+            font-size: 0.85rem;
+            color: var(--ctp-subtext1);
+            margin-top: 4px;
+            display: block;
+        }
+
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--ctp-surface1);
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--ctp-text);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--ctp-green);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+            background-color: var(--ctp-base);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.52a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" stroke="#cba6f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="12" r="3" stroke="#cba6f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Az Arch Settings
+            </h1>
+            <div class="header-meta">
+                <p>Customize your system configuration</p>
+            </div>
+        </header>
+
+        <div class="workspace">
+            <div class="main-area" style="overflow-y: auto;">
+                <div class="config-container">
+                    
+                    <div class="config-group">
+                        <h2>System Profile</h2>
+                        <div class="form-control">
+                            <label class="form-label">Device Model</label>
+                            <select id="model" class="form-select">
+                                <option value="pc">PC (Desktop)</option>
+                                <option value="laptop">Laptop</option>
+                            </select>
+                            <span class="switch-desc">Selects the configuration profile optimized for your device type.</span>
+                        </div>
+                    </div>
+
+                    <div class="config-group">
+                        <h2>Visual Customizations</h2>
+                        
+                        <div class="switch-wrapper">
+                            <div class="switch-label-group">
+                                <span class="switch-title">Remove End4 Background</span>
+                                <span class="switch-desc">Removes the default background from Quickshell widgets for a cleaner look.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="remove_end4_background">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="switch-wrapper">
+                            <div class="switch-label-group">
+                                <span class="switch-title">Catppuccin Theme</span>
+                                <span class="switch-desc">Apply Catppuccin color palette to Quickshell elements (replace_end4_color_to_catpuccin).</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="replace_end4_color_to_catpuccin">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="config-group">
+                        <h2>System Behavior</h2>
+                        
+                        <div class="switch-wrapper">
+                            <div class="switch-label-group">
+                                <span class="switch-title">Use Hyprshutdown</span>
+                                <span class="switch-desc">Use 'hyprshutdown' utility instead of standard systemctl commands for Session menu.</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="use_hyprshutdown">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <button id="run-btn" onclick="saveConfig()">Save & Apply</button>
+        </footer>
+    </div>
+
+    <script>
+        // --- WebKit Bridge ---
+        function sendMessage(action, data = {}) {
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.controller) {
+                window.webkit.messageHandlers.controller.postMessage({ action, ...data });
+            } else {
+                console.log("WebKit bridge not found:", action, data);
+            }
+        }
+
+        // --- Config Logic ---
+        let currentConfig = {};
+
+        function receiveConfig(config) {
+            console.log("Received config:", config);
+            currentConfig = config;
+            
+            // Populate fields
+            document.getElementById('model').value = config.model || 'pc';
+            document.getElementById('remove_end4_background').checked = !!config.remove_end4_background;
+            document.getElementById('replace_end4_color_to_catpuccin').checked = !!config.replace_end4_color_to_catpuccin;
+            document.getElementById('use_hyprshutdown').checked = !!config.use_hyprshutdown;
+        }
+
+        function saveConfig() {
+            const newConfig = {
+                model: document.getElementById('model').value,
+                remove_end4_background: document.getElementById('remove_end4_background').checked,
+                replace_end4_color_to_catpuccin: document.getElementById('replace_end4_color_to_catpuccin').checked,
+                use_hyprshutdown: document.getElementById('use_hyprshutdown').checked
+            };
+            
+            sendMessage('save_config', { config: newConfig });
+        }
+
+        // Initialize
+        window.onload = () => {
+            sendMessage('load_config');
+        };
+    </script>
+</body>
+</html>

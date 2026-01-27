@@ -10,17 +10,17 @@ get_user_model() {
             local model
             model=$(jq -r '.model' "$CONFIG_FILE")
             if [ "$model" == "null" ]; then
-                _log WARN "Model not found in $CONFIG_FILE. Defaulting to 'pc'."
+                _log WARN "Model not found in $CONFIG_FILE. Defaulting to 'pc'." >&2
                 echo "pc"
             else
                 echo "$model"
             fi
         else
-            _log WARN "'jq' command not found. Cannot read model from $CONFIG_FILE. Defaulting to 'pc'."
+            _log WARN "'jq' command not found. Cannot read model from $CONFIG_FILE. Defaulting to 'pc'." >&2
             echo "pc"
         fi
     else
-        _log WARN "$CONFIG_FILE not found. Defaulting to 'pc'."
+        _log WARN "$CONFIG_FILE not found. Defaulting to 'pc'." >&2
         echo "pc"
     fi
 }
@@ -179,13 +179,61 @@ patch_quickshell_background() {
     local qml_file="$HOME/.config/quickshell/ii/modules/ii/background/Background.qml"
 
     if [ -f "$qml_file" ]; then
-        _log INFO "Found QuickShell Background.qml at '$qml_file'. Patching..."
-        sed -i 's#visible: opacity > 0#visible: false // opacity > 0#g' "$qml_file"
-        sed -i 's#CF.ColorUtils.transparentize(CF.ColorUtils.mix(Appearance.colors.colLayer0, Appearance.colors.colPrimary, 0.75), (bgRoot.wallpaperIsVideo ? 1 : 0))#"transparent"#' "$qml_file"
-        _log SUCCESS "Successfully patched QuickShell Background.qml."
+        if [ -n "$(type -t _log)" ]; then _log INFO "Found QuickShell Background.qml at '$qml_file'. Patching..."; else echo "INFO: Found QuickShell Background.qml. Patching..."; fi
+        
+        # 1. Hide the Wallpaper Image
+        sed -i 's#visible: opacity > 0 && !blurLoader.active#visible: false // opacity > 0 \&\& !blurLoader.active#g' "$qml_file"
+        
+        # 2. Force Background Color to Transparent
+        sed -i 's#return CF.ColorUtils.mix(Appearance.colors.colLayer0, Appearance.colors.colPrimary, 0.75);#return "transparent"; // Original mix code removed#g' "$qml_file"
+        
+        if [ -n "$(type -t _log)" ]; then _log SUCCESS "Successfully patched QuickShell Background.qml."; else echo "SUCCESS: Successfully patched QuickShell Background.qml."; fi
     else
-        _log WARN "QuickShell Background.qml not found at '$qml_file'. Skipping patch."
+        if [ -n "$(type -t _log)" ]; then _log WARN "QuickShell Background.qml not found at '$qml_file'. Skipping patch."; else echo "WARN: QuickShell Background.qml not found. Skipping patch."; fi
     fi
+    echo "------------------------------------"
+}
+
+patch_end4_session_commands() {
+    # Check config.json for use_hyprshutdown
+    if [[ "$(get_config_bool 'use_hyprshutdown' 'true')" != "true" ]]; then
+        if [ -n "$(type -t _log)" ]; then _log INFO "Skipping hyprshutdown patch based on config.json setting."; else echo "INFO: Skipping hyprshutdown patch based on config.json setting."; fi
+        return
+    fi
+
+    echo "--- Patching End4 Session Commands to use hyprshutdown ---"
+    local end4_dots_dir="$HOME/dots-hyprland/dots"
+    
+    if [ ! -d "$end4_dots_dir" ]; then
+        if [ -n "$(type -t _log)" ]; then _log WARN "End4 dots directory not found. Skipping patch."; else echo "WARN: End4 dots directory not found. Skipping patch."; fi
+        return
+    fi
+
+    # 1. Patch Session.qml
+    local session_qml="$end4_dots_dir/.config/quickshell/ii/modules/common/functions/Session.qml"
+    if [ -f "$session_qml" ]; then
+        echo "Patching $session_qml"
+        sed -i 's#Quickshell.execDetached(\["pkill", "-i", "Hyprland"\]);#Quickshell.execDetached(["hyprshutdown"]);#g' "$session_qml"
+        sed -i 's#systemctl poweroff || loginctl poweroff#hyprshutdown -p "systemctl poweroff"#g' "$session_qml"
+        sed -i 's#reboot || loginctl reboot#hyprshutdown -p "systemctl reboot"#g' "$session_qml"
+    fi
+
+    # 2. Patch keybinds.conf in end4 dots
+    local end4_keybinds="$end4_dots_dir/.config/hypr/hyprland/keybinds.conf"
+    if [ -f "$end4_keybinds" ]; then
+        echo "Patching $end4_keybinds"
+        sed -i 's#exec, systemctl poweroff || loginctl poweroff#exec, hyprshutdown -p "systemctl poweroff"#g' "$end4_keybinds"
+    fi
+
+    # 3. Patch wlogout layout
+    local wlogout_layout="$end4_dots_dir/.config/wlogout/layout"
+    if [ -f "$wlogout_layout" ]; then
+        echo "Patching $wlogout_layout"
+        sed -i 's#hyprctl clients -j | jq -r .[^.]*.pid. | xargs kill; systemctl poweroff || loginctl poweroff#hyprshutdown -p "systemctl poweroff"#g' "$wlogout_layout"
+        sed -i 's#hyprctl clients -j | jq -r .[^.]*.pid. | xargs kill; systemctl reboot || loginctl reboot#hyprshutdown -p "systemctl reboot"#g' "$wlogout_layout"
+    fi
+
+    if [ -n "$(type -t _log)" ]; then _log SUCCESS "Successfully patched End4 session commands."; else echo "SUCCESS: Successfully patched End4 session commands."; fi
     echo "------------------------------------"
 }
 
@@ -199,17 +247,17 @@ get_config_bool() {
             local value
             value=$(jq -r --arg key "$key" '.[$key]' "$CONFIG_FILE")
             if [ "$value" == "null" ] || [ -z "$value" ]; then
-                _log WARN "Key '$key' not found in $CONFIG_FILE. Defaulting to '$default_value'."
+                _log WARN "Key '$key' not found in $CONFIG_FILE. Defaulting to '$default_value'." >&2
                 echo "$default_value"
             else
                 echo "$value"
             fi
         else
-            _log WARN "'jq' command not found. Cannot read key '$key' from $CONFIG_FILE. Defaulting to '$default_value'."
+            _log WARN "'jq' command not found. Cannot read key '$key' from $CONFIG_FILE. Defaulting to '$default_value'." >&2
             echo "$default_value"
         fi
     else
-        _log WARN "$CONFIG_FILE not found. Defaulting to '$default_value'."
+        _log WARN "$CONFIG_FILE not found. Defaulting to '$default_value'." >&2
         echo "$default_value"
     fi
 }

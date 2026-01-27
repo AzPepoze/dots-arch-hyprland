@@ -52,12 +52,12 @@ while true; do
     case $choice in
         1)
             echo "Starting Installer..."
-            python scripts/install.py
+            bash scripts/start_webkit_install.sh
             break
             ;;
         2)
             echo "Starting Configuration Editor..."
-            python scripts/config.py
+            bash scripts/start_webkit_config.sh
             ;;
         3)
             echo "Loading configurations..."

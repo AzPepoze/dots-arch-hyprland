@@ -10,10 +10,18 @@ set -e
 #-------------------------------------------------------
 # Configuration
 #-------------------------------------------------------
-# Get the directory of the current script (e.g., /home/azpepoze/dots-arch-hyprland/cli)
-CURRENT_SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+# Robustly get the directory of the current script
+SOURCE=${BASH_SOURCE[0]}
+while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+  SOURCE=$(readlink "$SOURCE")
+  [[ $SOURCE != /* ]] && SOURCE=$DIR/$SOURCE # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+CURRENT_SCRIPT_DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+
 # Get the parent directory of the current script (e.g., /home/azpepoze/dots-arch-hyprland)
 REPO_DIR="$(dirname "$CURRENT_SCRIPT_DIR")"
+repo_dir="$REPO_DIR" # Compatibility for helpers.sh
 CONFIGS_DIR_SYSTEM="$HOME"
 CONFIG_FILE="$REPO_DIR/config.json" # Path to the new config.json
 
@@ -225,6 +233,8 @@ END_OF_EXPECT
         _log SUCCESS "dots-hyprland unstable update finished."
     fi
 
+    patch_end4_session_commands
+
     cd - >/dev/null
 
     if [ -f "$backup_monitor_config_path" ]; then
@@ -321,9 +331,9 @@ main() {
         _log INFO "Skipping QuickShell color merge based on config.json setting."
     fi
 
-    # _log INFO "Reloading Hyprland configuration..."
-	# hyprctl reload 2>/dev/null || _log WARN "Hyprland is not running. Skipping reload."
-	# bash "$REPO_DIR/cli/force_reload_quickshell.sh" || _log WARN "Failed to force reload QuickShell."
+    _log INFO "Reloading Hyprland configuration..."
+    hyprctl reload 2>/dev/null || _log WARN "Hyprland is not running. Skipping reload."
+    bash "$REPO_DIR/cli/force_reload_quickshell.sh" || _log WARN "Failed to force reload QuickShell."
 
     echo "============================================================"
     _log SUCCESS "Configuration loading finished successfully."

@@ -54,10 +54,27 @@ update_cursor_conf() {
     cat > "$cursor_conf_file" <<- EOL
 # Cursor settings managed by config-loader
 env = XCURSOR_THEME,$theme
+env = XCURSOR_SIZE,$size
+env = HYPRCURSOR_THEME,$theme
+env = HYPRCURSOR_SIZE,$size
+
 exec-once = hyprctl setcursor $theme $size
 EOL
 
-    _log SUCCESS "Successfully generated '$cursor_conf_file' for theme '$theme' with size $size."
+    # Apply GTK settings
+    if command -v gsettings &> /dev/null; then
+        _log INFO "Setting GTK cursor theme and size..."
+        gsettings set org.gnome.desktop.interface cursor-theme "$theme"
+        gsettings set org.gnome.desktop.interface cursor-size "$size"
+    fi
+
+    # Apply Flatpak overrides if flatpak is installed
+    if command -v flatpak &> /dev/null; then
+        _log INFO "Applying Flatpak cursor overrides..."
+        flatpak override --filesystem=~/.icons:ro --user || true
+    fi
+
+    _log SUCCESS "Successfully generated '$cursor_conf_file' and applied system settings for theme '$theme' with size $size."
 }
 
 configure_cursor_theme() {

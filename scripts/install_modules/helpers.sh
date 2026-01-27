@@ -4,6 +4,11 @@
 # Group: Helper Functions
 #-------------------------------------------------------
 
+# Common Directories
+export USER_ICON_DIR="$HOME/.local/share/icons"
+export BUILT_THEMES_DIR="$repo_dir/dist/cursors"
+export CONFIG_FILE="$repo_dir/config.json"
+
 # Logging functions
 _log() {
     local type="$1"; shift
@@ -48,14 +53,28 @@ install_pacman_package() {
 install_paru_package() {
      local package="$1"
      local friendly_name="$2"
+     local noconfirm="${3:-true}"
+     
      if ! command -v paru &>/dev/null; then
-          echo "Error: paru is not installed. Skipping $friendly_name installation."
-          echo "Please install paru first."
+          _log ERROR "paru is not installed. Skipping $friendly_name installation."
           return 1
      fi
+
      echo "Installing $friendly_name ($package) using paru..."
-     paru -S --needed --noconfirm "$package"
-     echo "$friendly_name installation completed successfully."
+     
+     if [ "$noconfirm" = "true" ]; then
+          paru -S --needed --noconfirm "$package"
+     else
+          paru -S --needed "$package"
+     fi
+
+     if [ $? -eq 0 ]; then
+          _log SUCCESS "$friendly_name installation completed successfully."
+          return 0
+     else
+          _log ERROR "$friendly_name installation failed."
+          return 1
+     fi
 }
 
 install_flatpak_package() {
