@@ -33,5 +33,5 @@ install_fuse() {
 }
 
 install_ntfs_3g() {
-     install_pacman_package "ntfs-3g" "NTFS-3G (NTFS Filesystem Driver)"
+     install_pacman_package "ntfs-3g" "NTFS Support (ntfs-3g utilities for kernel ntfs3)"
 }

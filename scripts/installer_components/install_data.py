@@ -190,10 +190,10 @@ def get_install_items(repo_dir):
         },
         {
             "type": "essential",
-            "text": "Install NTFS-3G (NTFS Filesystem Driver)",
+            "text": "Install NTFS Support (fast ntfs3 & utilities)",
             "func": "install_ntfs_3g",
             "group": "System Libraries",
-            "description": "Installs NTFS-3G, a free and open-source implementation of the NTFS filesystem that allows Linux to read and write to NTFS partitions.",
+            "description": "Provides support for NTFS partitions using the fast kernel-level 'ntfs3' driver, and installs 'ntfs-3g' for essential maintenance utilities (like ntfsfix).",
         },
         {"type": "header", "text": "--- Desktop & Theming ---"},
         {

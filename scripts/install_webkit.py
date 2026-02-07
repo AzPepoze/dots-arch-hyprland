@@ -6,81 +6,110 @@ import subprocess
 import tempfile
 import stat
 
-# Use GTK3 and WebKit2 for compatibility
-gi.require_version('Gtk', '3.0')
-gi.require_version('WebKit2', '4.1') # Try 4.1 first, fallback can be handled if needed
+# Use GTK4 and WebKit6 for modern standards
+gi.require_version('Gtk', '4.0')
+gi.require_version('WebKit', '6.0')
 
-from gi.repository import Gtk, WebKit2, GLib
+from gi.repository import Gtk, WebKit, GLib
 
 # Add the script's directory to the Python path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from installer_components.installer_core import InstallerCore
 
-class InstallerWindow(Gtk.Window):
-    def __init__(self):
-        super().__init__(title="Az Arch Hyprland Installer")
+class InstallerWindow(Gtk.ApplicationWindow):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.set_title("Az Arch Hyprland Installer")
         self.set_default_size(900, 700)
-        self.connect("destroy", Gtk.main_quit)
 
         self.repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.installer_core = InstallerCore(self.repo_dir)
 
         # WebKit Setup
-        self.webview = WebKit2.WebView()
+        self.webview = WebKit.WebView()
         
         # Bridge Setup
         content_manager = self.webview.get_user_content_manager()
-        # In WebKit2, we register the handler like this
-        content_manager.register_script_message_handler("controller")
+        # In WebKit6 (GTK4), it's register_script_message_handler
+        print("Registering script message handler...")
+        content_manager.register_script_message_handler("controller", None)
         content_manager.connect("script-message-received::controller", self.on_message_received)
 
         # Load UI
         ui_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'webkit_ui', 'index.html')
+        print(f"Loading UI from: {ui_path}")
         self.webview.load_uri(f"file://{ui_path}")
 
-        # Add to window (GTK3 uses add() instead of set_child())
+        # Add to window (GTK4 uses set_child)
         scrolled_window = Gtk.ScrolledWindow()
-        scrolled_window.add(self.webview)
-        self.add(scrolled_window)
+        scrolled_window.set_child(self.webview)
+        self.set_child(scrolled_window)
 
         # DevTools
         settings = self.webview.get_settings()
         settings.set_enable_developer_extras(True)
+        settings.set_allow_file_access_from_file_urls(True)
+        settings.set_allow_universal_access_from_file_urls(True)
 
-    def on_message_received(self, content_manager, js_result):
-        # WebKit2 message handling
-        js_value = js_result.get_js_value()
-        message = js_value.to_json(0)
-        data = json.loads(message)
-        
-        action = data.get('action')
-        
-        if action == 'get_items':
-            self.send_items_to_js()
-        elif action == 'update_selection':
-            self.installer_core.update_item_selection(data['id'], data['is_selected'])
-        elif action == 'select_essential':
-            self.installer_core.select_essential()
-            self.send_items_to_js()
-        elif action == 'select_essential_laptop':
-            self.installer_core.select_essential_laptop()
-            self.send_items_to_js()
-        elif action == 'select_all':
-            self.installer_core.select_all()
-            self.send_items_to_js()
-        elif action == 'deselect_all':
-            self.installer_core.deselect_all()
-            self.send_items_to_js()
-        elif action == 'run_installation':
-            self.run_installation()
+    def on_message_received(self, manager, js_value):
+        try:
+            message = js_value.to_json(0)
+            data = json.loads(message)
+            
+            action = data.get('action')
+            
+            if action == 'get_items':
+                self.send_items_to_js()
+            elif action == 'update_selection':
+                self.installer_core.update_item_selection(data['id'], data['is_selected'])
+            elif action == 'select_essential':
+                self.installer_core.select_essential()
+                self.send_items_to_js()
+            elif action == 'select_essential_laptop':
+                self.installer_core.select_essential_laptop()
+                self.send_items_to_js()
+            elif action == 'select_all':
+                self.installer_core.select_all()
+                self.send_items_to_js()
+            elif action == 'deselect_all':
+                self.installer_core.deselect_all()
+                self.send_items_to_js()
+            elif action == 'run_installation':
+                self.run_installation()
+        except Exception as e:
+            print(f"Error processing message: {e}")
+            
+            action = data.get('action')
+            
+            if action == 'get_items':
+                self.send_items_to_js()
+            elif action == 'update_selection':
+                self.installer_core.update_item_selection(data['id'], data['is_selected'])
+            elif action == 'select_essential':
+                self.installer_core.select_essential()
+                self.send_items_to_js()
+            elif action == 'select_essential_laptop':
+                self.installer_core.select_essential_laptop()
+                self.send_items_to_js()
+            elif action == 'select_all':
+                self.installer_core.select_all()
+                self.send_items_to_js()
+            elif action == 'deselect_all':
+                self.installer_core.deselect_all()
+                self.send_items_to_js()
+            elif action == 'run_installation':
+                self.run_installation()
+        except Exception as e:
+            print(f"Error processing message: {e}")
 
     def send_items_to_js(self):
+        print("Sending items to JS...")
         items = self.installer_core.get_display_items()
         json_items = json.dumps(items)
         script = f"receiveItems({json_items})"
-        # WebKit2 uses run_javascript
-        self.webview.run_javascript(script, None, None, None)
+        # WebKit6 uses evaluate_javascript
+        self.webview.evaluate_javascript(script, -1, None, None, None, None, None)
 
     def run_installation(self):
         commands_to_run = self.installer_core.get_selected_commands()
@@ -110,7 +139,7 @@ class InstallerWindow(Gtk.Window):
 
     def show_alert(self, message):
         script = f"alert('{message}')"
-        self.webview.run_javascript(script, None, None, None)
+        self.webview.evaluate_javascript(script, -1, None, None, None, None, None)
 
     def _generate_install_script(self, commands):
         modules_dir = os.path.join(self.repo_dir, "scripts", "install_modules")
@@ -159,7 +188,11 @@ run_command() {
 
         return "\n".join(script_lines)
 
+def on_activate(app):
+    win = InstallerWindow(application=app)
+    win.present()
+
 if __name__ == "__main__":
-    win = InstallerWindow()
-    win.show_all()
-    Gtk.main()
+    app = Gtk.Application(application_id="com.az.arch.installer")
+    app.connect("activate", on_activate)
+    app.run(None)
