@@ -423,13 +423,6 @@ def get_install_items(repo_dir):
         },
         {
             "type": "optional",
-            "text": "Install Gemini CLI",
-            "func": "install_gemini_cli",
-            "group": "CLI Utilities",
-            "description": "Installs the Google Gemini CLI for interacting with Gemini models.",
-        },
-        {
-            "type": "optional",
             "text": "Install gcalcli",
             "func": "install_gcalcli",
             "group": "CLI Utilities",

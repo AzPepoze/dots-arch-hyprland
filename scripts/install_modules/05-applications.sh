@@ -192,21 +192,6 @@ install_fisher() {
     _log SUCCESS "Fisher installed."
 }
 
-install_gemini_cli() {
-    if ! command -v pnpm &> /dev/null; then
-        _log ERROR "pnpm is not installed. Please install it first."
-        if ask_yes_no "Do you want to install pnpm now?"; then
-            install_pnpm
-        else
-            echo "Skipping Gemini CLI installation."
-            return 1
-        fi
-    fi
-    echo "Installing Gemini CLI globally using pnpm..."
-    pnpm add -g @google/gemini-cli
-    _log SUCCESS "Gemini CLI installation completed successfully."
-}
-
 install_gcalcli() {
     echo "Installing gcalcli..."
     install_paru_package "gcalcli" "gcalcli"

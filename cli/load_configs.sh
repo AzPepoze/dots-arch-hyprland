@@ -93,30 +93,6 @@ load_configs_from_source() {
 
             echo $relative_path
 
-            # Special handling for .gemini folder (which is under home/gemini)
-            if [[ "$relative_path" == "gemini"* ]]; then
-                local gemini_repo_path="$source_dir/home/gemini"
-                local gemini_system_dest_path="$system_base_path/.gemini" # This will be $HOME/.gemini
-
-                echo "--- Loading '.gemini'$label_suffix ---"
-                if [ ! -d "$gemini_repo_path" ]; then
-                    _log WARN "Source directory for '.gemini' not found at '$gemini_repo_path'. Skipping."
-                    continue
-                fi
-
-                mkdir -p "$gemini_system_dest_path"
-                rsync -av --exclude="instruction.md" "$gemini_repo_path/" "$gemini_system_dest_path/"
-
-                if [ -f "$gemini_repo_path/instruction.md" ]; then
-                    cp "$gemini_repo_path/instruction.md" "$gemini_system_dest_path/GEMINI.md"
-                    _log SUCCESS "Copied instruction.md${label_suffix} to $gemini_system_dest_path/GEMINI.md"
-                else
-                    _log WARN "instruction.md not found in $gemini_repo_path. Skipping specific copy."
-                fi
-                echo "---------------------------"
-                continue # Skip further processing for gemini as it's handled
-            fi
-
             # Construct the system destination path
             if [ "$base_type_name" == "home" ]; then
                 # For home, if relative_path starts with "config/" or "local/", prepend a dot
