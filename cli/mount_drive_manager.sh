@@ -8,6 +8,8 @@
 FSTAB_FILE="/etc/fstab"
 FSTAB_BACKUP_DIR="/var/backups" # Standard backup location
 FSTAB_MANAGED_TAG="# MANAGED_BY_AUTO_MOUNT_SCRIPT" # Tag to identify entries added by this script
+SERVICE_NAME="ntfs-mount-fix.service"
+SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 
 #-------------------------------------------------------
 # Helper Functions
@@ -108,6 +110,64 @@ _get_partition_details() {
 # Core Functions
 #-------------------------------------------------------
 
+_check_and_fix_ntfs() {
+    local device="/dev/$1"
+    local fstype="$2"
+    
+    if [[ "$fstype" == "ntfs" || "$fstype" == "ntfs-3g" || "$fstype" == "ntfs3" ]]; then
+        echo ">> Checking NTFS partition $device for issues..."
+        if sudo ntfsfix -d "$device" > /dev/null 2>&1; then
+            echo "OK: $device was successfully processed by ntfsfix."
+            return 0
+        else
+            echo "WARNING: ntfsfix failed for $device. It might require manual intervention or chkdsk in Windows." >&2
+            return 1
+        fi
+    fi
+    return 0
+}
+
+_apply_mounts() {
+    echo ">> Running 'sudo mount -a' to apply all changes..."
+    if sudo mount -a; then
+        echo "OK: All partitions mounted successfully."
+        return 0
+    else
+        echo "WARNING: 'sudo mount -a' failed. Attempting to identify and fix NTFS issues..." >&2
+        
+        # Identify NTFS partitions in fstab that are not mounted
+        local unmounted_ntfs=$(grep "$FSTAB_MANAGED_TAG" "$FSTAB_FILE" | grep -E "ntfs|ntfs3" | while read -r line; do
+            local uuid=$(echo "$line" | grep -oP 'UUID=\K[a-fA-F0-9-]+')
+            local mount_point=$(echo "$line" | awk '{print $2}')
+            if ! mountpoint -q "$mount_point"; then
+                local dev=$(lsblk -no NAME "UUID=$uuid" 2>/dev/null)
+                if [ -n "$dev" ]; then
+                    echo "$dev"
+                fi
+            fi
+        done)
+
+        if [ -n "$unmounted_ntfs" ]; then
+            for dev in $unmounted_ntfs; do
+                echo ">> Found unmounted NTFS partition: /dev/$dev"
+                _check_and_fix_ntfs "$dev" "ntfs3"
+            done
+            
+            echo ">> Retrying 'sudo mount -a' after fixes..."
+            if sudo mount -a; then
+                echo "OK: All partitions mounted successfully after fixes."
+                return 0
+            else
+                echo "ERROR: 'sudo mount -a' still fails. Manual inspection required." >&2
+                return 1
+            fi
+        else
+            echo "ERROR: 'sudo mount -a' failed, but no unmounted managed NTFS partitions were found to fix." >&2
+            return 1
+        fi
+    fi
+}
+
 add_fstab_entry() {
     echo ">> Adding an entry to $FSTAB_FILE..."
     if ! _backup_fstab; then
@@ -127,6 +187,9 @@ add_fstab_entry() {
         fi
 
         echo "Selected Partition: /dev/$DEVICE (UUID: $UUID, FSTYPE: $FSTYPE)"
+
+        # Pre-fix NTFS before adding it if it has issues
+        _check_and_fix_ntfs "$DEVICE" "$FSTYPE"
 
         local default_mount_point="/mnt/$DEVICE"
         if [ -n "$FSTYPE" ]; then
@@ -179,13 +242,7 @@ add_fstab_entry() {
         echo # Add a newline for better readability between partitions
     done
 
-    echo ">> Running 'sudo mount -a' to apply all changes..."
-    sudo mount -a
-    if [ $? -eq 0 ]; then
-        echo "OK: All partitions mounted successfully."
-    else
-        echo "WARNING: 'sudo mount -a' failed. Check your fstab entries for errors." >&2
-    fi
+    _apply_mounts
     return 0
 }
 
@@ -250,6 +307,52 @@ view_managed_fstab_entries() {
     fi
 }
 
+_setup_auto_fix_service() {
+    echo ">> Setting up auto-fix service..."
+    local script_path=$(realpath "$0")
+    
+    local service_content="[Unit]
+Description=Auto-fix and mount NTFS partitions
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=$script_path --repair
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target"
+
+    echo "$service_content" | sudo tee "$SERVICE_PATH" > /dev/null
+    sudo systemctl daemon-reload
+    sudo systemctl enable "$SERVICE_NAME"
+    echo "OK: Auto-fix service enabled and created at $SERVICE_PATH."
+}
+
+_remove_auto_fix_service() {
+    echo ">> Removing auto-fix service..."
+    if [ -f "$SERVICE_PATH" ]; then
+        sudo systemctl disable "$SERVICE_NAME"
+        sudo rm "$SERVICE_PATH"
+        sudo systemctl daemon-reload
+        echo "OK: Auto-fix service removed."
+    else
+        echo "INFO: Service file $SERVICE_PATH not found."
+    fi
+}
+
+_check_service_status() {
+    if [ -f "$SERVICE_PATH" ]; then
+        if systemctl is-enabled --quiet "$SERVICE_NAME"; then
+            echo "Status: ENABLED"
+        else
+            echo "Status: DISABLED (File exists but not enabled)"
+        fi
+    else
+        echo "Status: NOT INSTALLED"
+    fi
+}
+
 #-------------------------------------------------------
 # Interactive Menu
 #-------------------------------------------------------
@@ -265,7 +368,12 @@ main() {
         echo "1) Add a new partition to fstab"
         echo "2) Remove a managed partition from fstab"
         echo "3) View managed fstab entries"
-        echo "4) Exit"
+        echo "4) Enable Auto-Fix Service (on boot)"
+        echo "5) Disable Auto-Fix Service"
+        echo "6) Exit"
+        echo
+        echo -n "Current Service "
+        _check_service_status
         echo
         read -p "Choose an option: " choice
 
@@ -283,6 +391,14 @@ main() {
                 view_managed_fstab_entries
                 ;;
             4)
+                echo
+                _setup_auto_fix_service
+                ;;
+            5)
+                echo
+                _remove_auto_fix_service
+                ;;
+            6)
                 echo "Exiting."
                 break
                 ;;
@@ -294,5 +410,9 @@ main() {
     done
 }
 
-# Run the main function
-main
+# Run the main function or parse arguments
+if [[ "$1" == "--repair" ]]; then
+    _apply_mounts
+else
+    main
+fi
