@@ -16,7 +16,7 @@ install_ulauncher_catppuccin_theme() {
 }
 
 install_vscode_insiders() {
-    install_paru_package "code-insiders-bin" "VS Code Insiders"
+    install_paru_package "visual-studio-code-insiders-bin" "VS Code Insiders"
 }
 
 fix_vscode_permissions() {
