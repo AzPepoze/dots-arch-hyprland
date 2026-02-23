@@ -140,9 +140,9 @@ _apply_mounts() {
             local uuid=$(echo "$line" | grep -oP 'UUID=\K[a-fA-F0-9-]+')
             local mount_point=$(echo "$line" | awk '{print $2}')
             if ! mountpoint -q "$mount_point"; then
-                local dev=$(lsblk -no NAME "UUID=$uuid" 2>/dev/null)
-                if [ -n "$dev" ]; then
-                    echo "$dev"
+                local dev_path=$(blkid -U "$uuid" 2>/dev/null)
+                if [ -n "$dev_path" ]; then
+                    basename "$dev_path"
                 fi
             fi
         done)
@@ -353,6 +353,22 @@ _check_service_status() {
     fi
 }
 
+_run_service_now() {
+    echo ">> Running auto-fix service now..."
+    if [ -f "$SERVICE_PATH" ]; then
+        echo ">> Starting systemd service: $SERVICE_NAME"
+        if sudo systemctl start "$SERVICE_NAME"; then
+            echo "OK: Service started successfully."
+        else
+            echo "ERROR: Failed to start service. Falling back to manual repair..." >&2
+            _apply_mounts
+        fi
+    else
+        echo "INFO: Service not installed. Running manual repair directly..."
+        _apply_mounts
+    fi
+}
+
 #-------------------------------------------------------
 # Interactive Menu
 #-------------------------------------------------------
@@ -370,7 +386,8 @@ main() {
         echo "3) View managed fstab entries"
         echo "4) Enable Auto-Fix Service (on boot)"
         echo "5) Disable Auto-Fix Service"
-        echo "6) Exit"
+        echo "6) Run Auto-Fix Service Now"
+        echo "7) Exit"
         echo
         echo -n "Current Service "
         _check_service_status
@@ -399,6 +416,10 @@ main() {
                 _remove_auto_fix_service
                 ;;
             6)
+                echo
+                _run_service_now
+                ;;
+            7)
                 echo "Exiting."
                 break
                 ;;
