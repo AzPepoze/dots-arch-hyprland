@@ -16,7 +16,6 @@ def get_install_items(repo_dir):
             "group": "System Optimization",
             "description": "Installs rate-mirrors and then runs the script to rank Arch Linux mirrors for optimal performance.",
         },
-
         {
             "type": "essential",
             "text": "Install Chaotic AUR",
@@ -68,10 +67,10 @@ def get_install_items(repo_dir):
         },
         {
             "type": "essential",
-            "text": "Install Ulauncher",
-            "func": "install_ulauncher",
+            "text": "Install Vicinae",
+            "func": "install_vicinae",
             "group": "Application Launcher",
-            "description": "Installs Ulauncher, a fast application launcher for Linux.",
+            "description": "Installs Vicinae, application launcher.",
         },
         {
             "type": "essential",
@@ -151,7 +150,6 @@ def get_install_items(repo_dir):
             "group": "Package Managers",
             "description": "Installs downgrade, a utility to downgrade one or more packages to a version in your cache or from the Arch Linux Archive.",
         },
-
         {
             "type": "optional",
             "text": "Install npm",
@@ -450,7 +448,6 @@ def get_install_items(repo_dir):
             "group": "Drivers & Modules",
             "description": "Installs the necessary drivers for MX002 series drawing tablets.",
         },
-
         {
             "type": "optional",
             "text": "Install Linux Wallpaper Engine",

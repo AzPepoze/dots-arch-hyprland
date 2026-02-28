@@ -135,8 +135,9 @@ install_hyprshutdown() {
     install_paru_package "hyprshutdown-git" "hyprshutdown" "false"
 }
 
-install_ulauncher() {
-    install_paru_package "ulauncher" "Ulauncher"
+install_vicinae() {
+    install_paru_package "vicinae" "Vicinae"
+    install_paru_package "vicinae-bin" "Vicinae-bin"
 }
 
 _check_grub_file_exists() {
