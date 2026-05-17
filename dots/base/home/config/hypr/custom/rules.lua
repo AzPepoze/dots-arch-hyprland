@@ -10,6 +10,6 @@ hl.window_rule({match = {class = "^(pavucontrol-qt)$"}, size = {"(monitor_w*0.36
 hl.window_rule({match = {class = "^(pavucontrol-qt)$"}, move = {"(monitor_w*0.63)", "(monitor_h*0.43)"}})
 
 -- Float + center Mission Center
-hl.window_rule({match = {class = "^(missioncenter)$"}, float = true})
-hl.window_rule({match = {class = "^(missioncenter)$"}, size = {"(monitor_w*0.55)", "(monitor_h*0.60)"}})
-hl.window_rule({match = {class = "^(missioncenter)$"}, center = true})
+hl.window_rule({match = {class = "(?i).*missioncenter.*"}, float = true})
+hl.window_rule({match = {class = "(?i).*missioncenter.*"}, size = {"(monitor_w*0.55)", "(monitor_h*0.60)"}})
+hl.window_rule({match = {class = "(?i).*missioncenter.*"}, center = true})
