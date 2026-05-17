@@ -2,4 +2,4 @@
 # Force reload QuickShell using specific kill command
 quickshell -c ii kill
 sleep 0.5
-hyprctl dispatch exec "quickshell -c ii"
+quickshell -c ii > /dev/null 2>&1 &

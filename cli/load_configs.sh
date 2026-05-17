@@ -226,6 +226,10 @@ END_OF_EXPECT
 # Main Logic
 #-------------------------------------------------------
 main() {
+    # Request sudo password upfront
+    echo -e "\e[1m\e[34mAuthenticating for system-wide configuration copies (like /etc)...\e[0m"
+    sudo -v
+
     # Default values for flags
     local skip_gpu=false
     local skip_cursor=false
@@ -292,12 +296,6 @@ main() {
         else
             _log WARN "Model-specific configuration directory '$MODEL_CONFIG_DIR' not found. Skipping."
         fi
-    fi
-
-    if [[ "$(get_config_bool 'remove_end4_background' 'true')" == "true" ]]; then
-        patch_quickshell_background
-    else
-        _log INFO "Skipping QuickShell background patch based on config.json setting."
     fi
 
     # Handle special cases

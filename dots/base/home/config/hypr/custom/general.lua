@@ -9,10 +9,11 @@ hl.config({
         }
     },
     decoration = {
-        inactive_opacity = 0.9,
+        inactive_opacity = 1.0,
         active_opacity = 1.0,
         dim_special = 0.2,
         blur = {
+            enabled = true,
             special = true,
             xray = false,
             size = 10,
