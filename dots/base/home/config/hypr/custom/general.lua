@@ -18,6 +18,8 @@ hl.config({
             xray = false,
             size = 10,
             passes = 3,
+            ignore_opacity = true,
+            new_optimizations = true,
             brightness = 1.0,
             noise = 0.0,
             contrast = 1.0,
