@@ -174,7 +174,25 @@ merge_quickshell_colors() {
     echo "------------------------------------"
 }
 
+patch_quickshell_background() {
+    echo "--- Patching QuickShell Background ---"
+    local qml_file="$HOME/.config/quickshell/ii/modules/ii/background/Background.qml"
 
+    if [ -f "$qml_file" ]; then
+        if [ -n "$(type -t _log)" ]; then _log INFO "Found QuickShell Background.qml at '$qml_file'. Patching..."; else echo "INFO: Found QuickShell Background.qml. Patching..."; fi
+        
+        # 1. Hide the Wallpaper Image
+        sed -i 's#visible: opacity > 0 && !blurLoader.active#visible: false // opacity > 0 \&\& !blurLoader.active#g' "$qml_file"
+        
+        # 2. Force Background Color to Transparent
+        sed -i 's#return CF.ColorUtils.mix(Appearance.colors.colLayer0, Appearance.colors.colPrimary, 0.75);#return "transparent"; // Original mix code removed#g' "$qml_file"
+        
+        if [ -n "$(type -t _log)" ]; then _log SUCCESS "Successfully patched QuickShell Background.qml."; else echo "SUCCESS: Successfully patched QuickShell Background.qml."; fi
+    else
+        if [ -n "$(type -t _log)" ]; then _log WARN "QuickShell Background.qml not found at '$qml_file'. Skipping patch."; else echo "WARN: QuickShell Background.qml not found. Skipping patch."; fi
+    fi
+    echo "------------------------------------"
+}
 
 patch_end4_session_commands() {
     # Check config.json for use_hyprshutdown

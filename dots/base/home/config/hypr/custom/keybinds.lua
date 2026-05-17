@@ -10,6 +10,7 @@ local archSetupScripts = "$HOME/dots-arch-hyprland/scripts"
 hl.bind("SUPER + A", hl.dsp.exec_cmd("pgrep -x rofi && killall rofi || rofi -show drun"), { description = "App: Rofi Launcher" })
 hl.bind("SUPER + Semicolon", hl.dsp.global("quickshell:overviewEmojiToggle"), { description = "Utilities: Emoji Picker" })
 hl.bind("CTRL + SUPER + V", hl.dsp.exec_cmd("pavucontrol-qt || pavucontrol"), { description = "App: Volume Mixer" })
+hl.bind("CTRL + SHIFT + Escape", hl.dsp.exec_cmd("missioncenter"), { description = "App: Mission Center" })
 
 -------------------------------------------------------
 -- Custom Scripts

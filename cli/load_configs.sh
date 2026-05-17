@@ -298,6 +298,12 @@ main() {
         fi
     fi
 
+    if [[ "$(get_config_bool 'remove_end4_background' 'true')" == "true" ]]; then
+        patch_quickshell_background
+    else
+        _log INFO "Skipping QuickShell background patch based on config.json setting."
+    fi
+
     # Handle special cases
     if [[ "$(get_config_bool 'replace_end4_color_to_catpuccin' 'true')" == "true" ]]; then
         merge_quickshell_colors
