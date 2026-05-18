@@ -114,10 +114,9 @@ update_gpu_conf() {
 
     mkdir -p "$(dirname "$gpu_lua_file")"
 
-    # Remove legacy conf file if exists
-    if [ -f "$legacy_gpu_conf" ]; then
-        rm -f "$legacy_gpu_conf"
-    fi
+    # Clean up legacy configuration file if present
+    rm -f "$legacy_gpu_conf"
+
 
     _log INFO "Generating $gpu_lua_file..."
     cat > "$gpu_lua_file" <<- EOL

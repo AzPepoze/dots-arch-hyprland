@@ -15,18 +15,18 @@ install_ulauncher_catppuccin_theme() {
     echo "Catppuccin theme for Ulauncher installation attempted."
 }
 
-install_vscode_insiders() {
-    install_paru_package "visual-studio-code-insiders-bin" "VS Code Insiders"
+install_vscode() {
+    install_paru_package "visual-studio-code-bin" "VS Code"
 }
 
 fix_vscode_permissions() {
-    echo "Attempting to fix permissions for VS Code Insiders..."
-    local vscode_path="/usr/share/code-insiders"
+    echo "Attempting to fix permissions for VS Code..."
+    local vscode_path="/usr/share/code"
     if [ -d "$vscode_path" ]; then
-        sudo chown -R $(whoami):$(whoami) /usr/share/code-insiders
-        _log SUCCESS "Fixed permissions for VS Code Insiders at $vscode_path"
+        sudo chown -R $(whoami):$(whoami) /usr/share/code
+        _log SUCCESS "Fixed permissions for VS Code at $vscode_path"
     else
-        _log INFO "VS Code Insiders installation path $vscode_path not found. Skipping permission fix."
+        _log INFO "VS Code installation path $vscode_path not found. Skipping permission fix."
     fi
 }
 
@@ -200,11 +200,11 @@ install_gcalcli() {
 
 install_n8n() {
     echo "Installing n8n..."
-    if ! command -v pnpm &> /dev/null; then
-        echo "pnpm is not installed. Please install pnpm first."
+    if ! command -v bun &> /dev/null; then
+        echo "Bun is not installed. Please install Bun first."
         return 1
     fi
-    pnpm install -g n8n
+    bun install -g n8n
     if [ $? -eq 0 ]; then
         echo "n8n installed successfully."
     else

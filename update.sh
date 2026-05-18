@@ -4,7 +4,7 @@
 # Script Configuration
 #-------------------------------------------------------
 AUTO_MODE=false
-SKIP_CODE_INSIDERS=false
+SKIP_VSCODE=false
 LOAD_CONFIGS_ARGS=()
 
 for arg in "$@"; do
@@ -12,8 +12,8 @@ for arg in "$@"; do
         --auto)
             AUTO_MODE=true
             ;;
-        --skip-code-insiders)
-            SKIP_CODE_INSIDERS=true
+        --skip-vscode)
+            SKIP_VSCODE=true
             ;;
         *)
             LOAD_CONFIGS_ARGS+=("$arg")
@@ -39,42 +39,36 @@ update_system_packages() {
         return
     fi
     
-    echo
-    echo "============================================================="
-    echo " Updating System & AUR Packages (paru)"
-    echo "============================================================="
+    _header "Updating System & AUR Packages (paru)"
     paru -Syu --noconfirm
 }
 
-update_vscode_insiders() {
-    if [ "$SKIP_CODE_INSIDERS" = true ]; then
-        _log INFO "Skipping VS Code Insiders update as requested."
+update_vscode() {
+    if [ "$SKIP_VSCODE" = true ]; then
+        _log INFO "Skipping VS Code update as requested."
         return
     fi
 
     if ! command -v paru &> /dev/null; then
-        _log WARN "paru command not found. Skipping VS Code Insiders update."
+        _log WARN "paru command not found. Skipping VS Code update."
         _log INFO "Please install paru to enable this feature."
         return
     fi
 
-    if ! command -v code-insiders &> /dev/null; then
-        _log INFO "VS Code Insiders (code-insiders) command not found. Skipping update."
+    if ! command -v code &> /dev/null; then
+        _log INFO "VS Code (code) command not found. Skipping update."
         return
     fi
 
-    echo
-    echo "============================================================="
-    echo " Updating VS Code Insiders (code-insiders-bin)"
-    echo "============================================================="
+    _header "Updating VS Code (visual-studio-code-bin)"
 
-    # Check if code-insiders-bin is outdated using paru
-    if paru -Qqu code-insiders-bin &> /dev/null; then
-        _log INFO "VS Code Insiders (code-insiders-bin) is outdated. Updating..."
-        paru -S --noconfirm code-insiders-bin
-        _log SUCCESS "VS Code Insiders updated."
+    # Check if visual-studio-code-bin is outdated using paru
+    if paru -Qqu visual-studio-code-bin &> /dev/null; then
+        _log INFO "VS Code (visual-studio-code-bin) is outdated. Updating..."
+        paru -S --noconfirm visual-studio-code-bin
+        _log SUCCESS "VS Code updated."
     else
-        _log INFO "VS Code Insiders is already up-to-date."
+        _log INFO "VS Code is already up-to-date."
     fi
 }
 
@@ -84,34 +78,25 @@ update_flatpak() {
         return
     fi
 
-    echo
-    echo "============================================================="
-    echo " Updating Flatpak Packages"
-    echo "============================================================="
+    _header "Updating Flatpak Packages"
     flatpak update -y
 }
 
-update_npm_global_packages() {
-    if ! command -v npm &> /dev/null; then
-        _log WARN "npm command not found. Skipping global package update."
-        _log INFO "Please install npm to enable this feature."
+update_bun_global_packages() {
+    if ! command -v bun &> /dev/null; then
+        _log WARN "bun command not found. Skipping global package update."
+        _log INFO "Please install bun to enable this feature."
         return
     fi
 
-    echo
-    echo "============================================================="
-    echo " Updating Global NPM Packages"
-    echo "============================================================="
-    _log INFO "Updating all global npm packages..."
-    sudo npm update -g
-    _log SUCCESS "Global npm packages updated."
+    _header "Updating Global Bun Packages"
+    _log INFO "Updating all global bun packages..."
+    bun update -g
+    _log SUCCESS "Global bun packages updated."
 }
 
 load_v4l2loopback_module() {
-    echo
-    echo "============================================================="
-    echo " Loading v4l2loopback module"
-    echo "============================================================="
+    _header "Loading v4l2loopback module"
     sudo modprobe v4l2loopback
     _log SUCCESS "v4l2loopback module loaded."
 }
@@ -124,10 +109,7 @@ load_configs() {
         return
     fi
 
-    echo
-    echo "============================================================="
-    echo " Load Configurations"
-    echo "============================================================="
+    _header "Load Configurations"
 
     # Pass filtered arguments to load_configs.sh
     bash "$config_script" "${LOAD_CONFIGS_ARGS[@]}"
@@ -147,12 +129,13 @@ _log INFO "Starting full system update process..."
 echo
 
 update_system_packages
-update_vscode_insiders
+update_vscode
 fix_vscode_permissions
 update_flatpak
-update_npm_global_packages
+update_bun_global_packages
 load_v4l2loopback_module
 load_configs
-bash ./cli/cleanup.sh
+bash ./cli/utils/cleanup.sh
+
 
 _log SUCCESS "Full system update and cleanup process has finished."

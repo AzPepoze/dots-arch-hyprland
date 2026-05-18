@@ -41,7 +41,8 @@ else
 fi
 
 # Source loader helper functions
-source "$CURRENT_SCRIPT_DIR/load_helpers.sh"
+source "$CURRENT_SCRIPT_DIR/utils/load_helpers.sh"
+
 
 #-------------------------------------------------------
 # Load Configurations from a Source Directory
@@ -262,17 +263,31 @@ main() {
     update_dots_hyprland
 
     # GPU Configuration
-    if [ "$skip_gpu" = false ]; then
-        "$CURRENT_SCRIPT_DIR/configs/gpu.sh"
+    local gpu_lua_file="$HOME/.config/hypr/gpu.lua"
+    if [ ! -f "$gpu_lua_file" ]; then
+        echo -e "\n\e[1m[GPU Configurator]\e[0m Primary GPU configuration not found."
+        read -p "Would you like to configure your GPU now? [y/N]: " configure_gpu_choice
+        if [[ "$configure_gpu_choice" =~ ^[Yy]$ ]]; then
+            "$CURRENT_SCRIPT_DIR/configs/gpu.sh"
+        else
+            _log INFO "Skipping GPU configuration (you can configure it anytime from Utilities menu)."
+        fi
     else
-        _log INFO "Skipping GPU configuration due to --skip-gpu flag."
+        _log INFO "GPU already configured at '$gpu_lua_file'. Skipping auto-configuration."
     fi
 
     # Cursor Theme Configuration
-    if [ "$skip_cursor" = false ]; then
-        "$CURRENT_SCRIPT_DIR/configs/cursor.sh"
+    local cursor_lua_file="$HOME/.config/hypr/cursor.lua"
+    if [ ! -f "$cursor_lua_file" ]; then
+        echo -e "\n\e[1m[Cursor Configurator]\e[0m Cursor configuration not found."
+        read -p "Would you like to configure your cursor theme now? [y/N]: " configure_cursor_choice
+        if [[ "$configure_cursor_choice" =~ ^[Yy]$ ]]; then
+            "$CURRENT_SCRIPT_DIR/configs/cursor.sh"
+        else
+            _log INFO "Skipping cursor configuration (you can configure it anytime from Utilities menu)."
+        fi
     else
-         _log INFO "Skipping cursor configuration due to --skip-cursor flag."
+        _log INFO "Cursor already configured at '$cursor_lua_file'. Skipping auto-configuration."
     fi
 
     # Get user model from config.json
@@ -313,7 +328,8 @@ main() {
 
     _log INFO "Reloading Hyprland configuration..."
     hyprctl reload 2>/dev/null || _log WARN "Hyprland is not running. Skipping reload."
-    bash "$REPO_DIR/cli/force_reload_quickshell.sh" || _log WARN "Failed to force reload QuickShell."
+    bash "$REPO_DIR/cli/utils/force_reload_quickshell.sh" || _log WARN "Failed to force reload QuickShell."
+
 
     echo "============================================================"
     _log SUCCESS "Configuration loading finished successfully."

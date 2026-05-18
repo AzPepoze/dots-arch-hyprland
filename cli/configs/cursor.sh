@@ -8,25 +8,20 @@
 set -e
 
 #-------------------------------------------------------
-# Configuration
+# Environment & Setup
 #-------------------------------------------------------
-# Get the directory of the current script
 CURRENT_SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-# Get the root directory of the repository
 REPO_DIR="$(dirname "$(dirname "$CURRENT_SCRIPT_DIR")")"
 CONFIGS_DIR_SYSTEM="$HOME"
 
-# Source helper functions
+# Source project helpers
 HELPER_SCRIPT="$REPO_DIR/scripts/install_modules/helpers.sh"
-# Check if helper script exists before sourcing
 if [ -f "$HELPER_SCRIPT" ]; then
     source "$HELPER_SCRIPT"
 else
-    # Define a fallback _log function if helper is not found
+    # Fallback log function to avoid capturing output during command substitution
     _log() {
-        local level=$1
-        shift
-        # Default log to stderr to avoid issues with command substitution
+        local level=$1; shift
         echo "[$level] $@" >&2
     }
 fi
@@ -42,10 +37,8 @@ update_cursor_conf() {
     local legacy_cursor_conf="$CONFIGS_DIR_SYSTEM/.config/hypr/cursor.conf"
     mkdir -p "$(dirname "$cursor_lua_file")"
 
-    # Remove legacy conf file if exists
-    if [ -f "$legacy_cursor_conf" ]; then
-        rm -f "$legacy_cursor_conf"
-    fi
+    # Clean up legacy configuration file if present
+    rm -f "$legacy_cursor_conf"
 
     if [ -z "$theme" ]; then
         _log INFO "No cursor theme provided. Creating blank cursor.lua."
@@ -56,7 +49,7 @@ update_cursor_conf() {
     
     _log INFO "Updating cursor configuration..."
 
-    # Write the configuration to the Lua file
+    # Generate custom Lua configuration file
     cat > "$cursor_lua_file" <<- EOL
 -- Cursor settings managed by config-loader
 hl.env("XCURSOR_THEME", "$theme")
@@ -69,14 +62,14 @@ hl.on("hyprland.start", function()
 end)
 EOL
 
-    # Apply GTK settings
+    # Apply GTK cursor preferences
     if command -v gsettings &> /dev/null; then
         _log INFO "Setting GTK cursor theme and size..."
         gsettings set org.gnome.desktop.interface cursor-theme "$theme"
         gsettings set org.gnome.desktop.interface cursor-size "$size"
     fi
 
-    # Apply Flatpak overrides if flatpak is installed
+    # Allow Flatpaks to read local icons
     if command -v flatpak &> /dev/null; then
         _log INFO "Applying Flatpak cursor overrides..."
         flatpak override --filesystem=~/.icons:ro --user || true
@@ -86,10 +79,10 @@ EOL
 }
 
 
+
 configure_cursor_theme() {
-    # All status messages are redirected to stderr (>&2)
-    # to avoid being captured by command substitution.
-        echo "" >&2
+    # All status messages are redirected to stderr (>&2) to avoid being captured by command substitution.
+    echo "" >&2
     echo "Starting Cursor Theme Installation..." >&2
 
     local built_themes_dir="$REPO_DIR/dist/cursors"
@@ -130,10 +123,11 @@ configure_cursor_theme() {
                     echo "Ensured icon directory exists at '$user_icon_dir'" >&2
 
                     cp -r "$built_themes_dir/$theme_name" "$user_icon_dir/"
-                    # THIS IS THE FIX: Redirect the _log output to stderr
+                    
+                    # Redirect log output to stderr to keep stdout reserved for the return value
                     _log SUCCESS "Copied '$theme_name' to '$user_icon_dir'" >&2
                     
-                    # This is the only echo to stdout, serving as the return value.
+                    # Return the selected theme name to the caller via stdout
                     echo "$theme_name"
                     break
                 else

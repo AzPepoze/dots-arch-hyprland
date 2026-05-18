@@ -1,1 +1,0 @@
-sudo rm -rf $HOME/.local/share/Trash/files/* $HOME/.local/share/Trash/files/.*

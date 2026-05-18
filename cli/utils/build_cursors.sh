@@ -18,11 +18,14 @@ set -e # Exit immediately if a command exits with a non-zero status.
 # Variables & Setup
 #-------------------------------------------------------
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SRC_DIR="$DIR/src/cursors"
-DEST_DIR="$DIR/dist/cursors"
+CLI_DIR="$(dirname "$DIR")"
+SRC_DIR="$CLI_DIR/src/cursors"
+DEST_DIR="$CLI_DIR/dist/cursors"
 
 # Source helper functions (MUST be at the top)
-source "$DIR/scripts/install_modules/helpers.sh"
+source "$(dirname "$CLI_DIR")/scripts/install_modules/helpers.sh"
+
+
 
 #-------------------------------------------------------
 # Functions
