@@ -62,7 +62,10 @@ hl.bind(mod .. " + SHIFT + Down", hl.dsp.window.move({ direction = "d" }))
 -------------------------------------------------------
 hl.bind(mod .. " + W", hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" }), { description = "Window: Toggle Maximized" })
 hl.bind(mod .. " + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }), { description = "Window: Toggle Fullscreen" })
-hl.bind(mod .. " + SHIFT + Z", hl.dsp.exec_cmd("hyprctl dispatch togglefloating activewindow && hyprctl dispatch pin activewindow"), { description = "Window: Toggle Float + Pin" })
+hl.bind(mod .. " + SHIFT + Z", function()
+    hl.dispatch(hl.dsp.window.float({ action = "toggle" }))
+    hl.dispatch(hl.dsp.window.pin())
+end, { description = "Window: Toggle Float + Pin" })
 hl.bind(mod .. " + SHIFT + CTRL + Z", hl.dsp.window.float({ action = "toggle" }), { description = "Window: Toggle Float" })
 
 -------------------------------------------------------
