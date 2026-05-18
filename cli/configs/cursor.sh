@@ -38,27 +38,35 @@ update_cursor_conf() {
     local theme=$1
     local size=$2
 
-    local cursor_conf_file="$CONFIGS_DIR_SYSTEM/.config/hypr/cursor.conf"
-    mkdir -p "$(dirname "$cursor_conf_file")"
+    local cursor_lua_file="$CONFIGS_DIR_SYSTEM/.config/hypr/cursor.lua"
+    local legacy_cursor_conf="$CONFIGS_DIR_SYSTEM/.config/hypr/cursor.conf"
+    mkdir -p "$(dirname "$cursor_lua_file")"
+
+    # Remove legacy conf file if exists
+    if [ -f "$legacy_cursor_conf" ]; then
+        rm -f "$legacy_cursor_conf"
+    fi
 
     if [ -z "$theme" ]; then
-        _log INFO "No cursor theme provided. Creating blank cursor.conf."
-        cat /dev/null > "$cursor_conf_file"
-        _log SUCCESS "Successfully created blank '$cursor_conf_file'."
+        _log INFO "No cursor theme provided. Creating blank cursor.lua."
+        cat /dev/null > "$cursor_lua_file"
+        _log SUCCESS "Successfully created blank '$cursor_lua_file'."
         return
     fi
     
     _log INFO "Updating cursor configuration..."
 
-    # Write the configuration to the file
-    cat > "$cursor_conf_file" <<- EOL
-# Cursor settings managed by config-loader
-env = XCURSOR_THEME,$theme
-env = XCURSOR_SIZE,$size
-env = HYPRCURSOR_THEME,$theme
-env = HYPRCURSOR_SIZE,$size
+    # Write the configuration to the Lua file
+    cat > "$cursor_lua_file" <<- EOL
+-- Cursor settings managed by config-loader
+hl.env("XCURSOR_THEME", "$theme")
+hl.env("XCURSOR_SIZE", "$size")
+hl.env("HYPRCURSOR_THEME", "$theme")
+hl.env("HYPRCURSOR_SIZE", "$size")
 
-exec-once = hyprctl setcursor $theme $size
+hl.on("hyprland.start", function()
+    hl.exec_cmd("hyprctl setcursor $theme $size")
+end)
 EOL
 
     # Apply GTK settings
@@ -74,8 +82,9 @@ EOL
         flatpak override --filesystem=~/.icons:ro --user || true
     fi
 
-    _log SUCCESS "Successfully generated '$cursor_conf_file' and applied system settings for theme '$theme' with size $size."
+    _log SUCCESS "Successfully generated '$cursor_lua_file' and applied system settings for theme '$theme' with size $size."
 }
+
 
 configure_cursor_theme() {
     # All status messages are redirected to stderr (>&2)

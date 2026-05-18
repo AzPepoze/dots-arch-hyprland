@@ -29,14 +29,14 @@ source "$GPU_LIST_SCRIPT"
 #-------------------------------------------------------
 # GPU Configuration Check
 #-------------------------------------------------------
-GPU_CONF_FILE="$HOME/.config/hypr/gpu.conf"
+GPU_LUA_FILE="$HOME/.config/hypr/gpu.lua"
 
 # Exit successfully if the config file doesn't exist or is empty
-if [ ! -s "$GPU_CONF_FILE" ]; then
+if [ ! -s "$GPU_LUA_FILE" ]; then
     exit 0
 fi
 
-CURRENT_GPU_DEVICE_STRING=$(grep "^env = AQ_DRM_DEVICES," "$GPU_CONF_FILE" | cut -d',' -f2-)
+CURRENT_GPU_DEVICE_STRING=$(grep 'hl.env("AQ_DRM_DEVICES"' "$GPU_LUA_FILE" | cut -d'"' -f4)
 
 if [ -z "$CURRENT_GPU_DEVICE_STRING" ]; then
     # Exit successfully if the line is not in the file
@@ -51,3 +51,4 @@ if ! check_gpu_device_path "$PRIMARY_GPU_DEVICE"; then
 fi
 
 exit 0
+

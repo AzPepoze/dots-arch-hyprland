@@ -109,15 +109,23 @@ update_gpu_conf() {
         return 1
     fi
 
-    local env_var_line="env = AQ_DRM_DEVICES,$gpu_device_string"
-    local gpu_conf_file="$CONFIGS_DIR_SYSTEM/.config/hypr/gpu.conf"
+    local gpu_lua_file="$CONFIGS_DIR_SYSTEM/.config/hypr/gpu.lua"
+    local legacy_gpu_conf="$CONFIGS_DIR_SYSTEM/.config/hypr/gpu.conf"
 
-    mkdir -p "$(dirname "$gpu_conf_file")"
+    mkdir -p "$(dirname "$gpu_lua_file")"
 
-    echo "# GPU settings managed by config-loader" > "$gpu_conf_file"
-    _log INFO "Adding '$env_var_line' to $gpu_conf_file"
-    echo "$env_var_line" >> "$gpu_conf_file"
+    # Remove legacy conf file if exists
+    if [ -f "$legacy_gpu_conf" ]; then
+        rm -f "$legacy_gpu_conf"
+    fi
+
+    _log INFO "Generating $gpu_lua_file..."
+    cat > "$gpu_lua_file" <<- EOL
+-- GPU settings managed by config-loader
+hl.env("AQ_DRM_DEVICES", "$gpu_device_string")
+EOL
 }
+
 
 #-------------------------------------------------------
 # Main Logic
