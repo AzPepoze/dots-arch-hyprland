@@ -33,6 +33,7 @@ source "$repo_dir/scripts/utils/list_gpu.sh" # Source list_gpu.sh for GPU valida
 
 
 update_system_packages() {
+    resolve_pacman_file_conflicts
     if ! command -v paru &> /dev/null; then
         _log WARN "paru command not found. Skipping system package update."
         _log INFO "Please install paru to enable this feature."
