@@ -50,9 +50,19 @@ ask_yes_no() {
      done
 }
 
+resolve_pacman_file_conflicts() {
+     if [ -d "/usr/lib/node_modules/node-gyp/node_modules" ]; then
+          if [ -f "/usr/lib/node_modules/node-gyp/node_modules/isexe/LICENSE.md" ] && ! pacman -Qo /usr/lib/node_modules/node-gyp/node_modules/isexe/LICENSE.md &>/dev/null; then
+               _log INFO "Detecting untracked node-gyp files. Cleaning up..."
+               sudo rm -rf /usr/lib/node_modules/node-gyp/node_modules
+          fi
+     fi
+}
+
 install_pacman_package() {
      local package="$1"
      local friendly_name="$2"
+     resolve_pacman_file_conflicts
      echo "Installing $friendly_name..."
      sudo pacman -S --needed "$package" --noconfirm
      echo "$friendly_name installation completed successfully."
@@ -62,6 +72,7 @@ install_paru_package() {
      local package="$1"
      local friendly_name="$2"
      local noconfirm="${3:-true}"
+     resolve_pacman_file_conflicts
      
      if ! command -v paru &>/dev/null; then
           _log ERROR "paru is not installed. Skipping $friendly_name installation."
