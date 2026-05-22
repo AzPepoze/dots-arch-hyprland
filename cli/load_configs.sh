@@ -142,8 +142,11 @@ update_dots_hyprland() {
     fi
 
     cd "$HOME/dots-hyprland"
-    # git reset --hard origin/main && git pull
-    # _log SUCCESS "dots-hyprland repository updated."
+    _log INFO "Pulling the latest changes for dots-hyprland..."
+    git fetch --all
+    git reset --hard origin/$(git branch --show-current || echo "main")
+    git pull
+    _log SUCCESS "dots-hyprland repository updated."
 
     if [ "$FULL_MODE" = true ]; then
         _log INFO "Full mode enabled. Running full install..."
