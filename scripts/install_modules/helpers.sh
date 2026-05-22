@@ -85,14 +85,17 @@ install_paru_package() {
      fi
 }
 
+check_flatpak() {
+     if ! command -v flatpak &>/dev/null; then
+          _log INFO "Flatpak is not installed. Installing Flatpak..."
+          install_pacman_package "flatpak" "Flatpak"
+     fi
+}
+
 install_flatpak_package() {
      local package_id="$1"
      local friendly_name="$2"
-     if ! command -v flatpak &>/dev/null; then
-          echo "Error: Flatpak is not installed. Skipping $friendly_name installation."
-          echo "Please install Flatpak first."
-          return 1
-     fi
+     check_flatpak
      echo "Installing $friendly_name from Flathub..."
      flatpak install flathub "$package_id" -y
      echo "$friendly_name installation completed."

@@ -116,10 +116,10 @@ def get_install_items(repo_dir):
         },
         {
             "type": "essential",
-            "text": "Install Mission Center",
+            "text": "Install Mission Center (Flatpak)",
             "func": "install_mission_center",
             "group": "System Monitoring",
-            "description": "Installs Mission Center, a modern and fast system monitor for Linux.",
+            "description": "Installs Mission Center (Flatpak version), a modern and fast system monitor for Linux.",
         },
         {
             "type": "essential",
