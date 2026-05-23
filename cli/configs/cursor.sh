@@ -34,7 +34,10 @@ update_cursor_conf() {
     local size=$2
 
     local cursor_lua_file="$CONFIGS_DIR_SYSTEM/.config/hypr/cursor.lua"
+    local custom_execs_file="$CONFIGS_DIR_SYSTEM/.config/hypr/custom/execs.lua"
     local legacy_cursor_conf="$CONFIGS_DIR_SYSTEM/.config/hypr/cursor.conf"
+    local marker_start="-- [cursor-loader:start]"
+    local marker_end="-- [cursor-loader:end]"
     mkdir -p "$(dirname "$cursor_lua_file")"
 
     # Clean up legacy configuration file if present
@@ -43,6 +46,7 @@ update_cursor_conf() {
     if [ -z "$theme" ]; then
         _log INFO "No cursor theme provided. Creating blank cursor.lua."
         cat /dev/null > "$cursor_lua_file"
+        _inject_setcursor_to_execs "" "" "$custom_execs_file" "$marker_start" "$marker_end"
         _log SUCCESS "Successfully created blank '$cursor_lua_file'."
         return
     fi
@@ -56,11 +60,9 @@ hl.env("XCURSOR_THEME", "$theme")
 hl.env("XCURSOR_SIZE", "$size")
 hl.env("HYPRCURSOR_THEME", "$theme")
 hl.env("HYPRCURSOR_SIZE", "$size")
-
-hl.on("hyprland.start", function()
-    hl.exec_cmd("hyprctl setcursor $theme $size")
-end)
 EOL
+
+    _inject_setcursor_to_execs "$theme" "$size" "$custom_execs_file" "$marker_start" "$marker_end"
 
     # Apply GTK cursor preferences
     if command -v gsettings &> /dev/null; then
@@ -78,7 +80,40 @@ EOL
     _log SUCCESS "Successfully generated '$cursor_lua_file' and applied system settings for theme '$theme' with size $size."
 }
 
+_inject_setcursor_to_execs() {
+    local theme=$1
+    local size=$2
+    local execs_file=$3
+    local marker_start=$4
+    local marker_end=$5
 
+    if [ ! -f "$execs_file" ]; then
+        _log INFO "custom/execs.lua not found, skipping setcursor injection."
+        return
+    fi
+
+    # Remove previous managed block
+    local tmp
+    tmp=$(mktemp)
+    sed '/-- \[cursor-loader:start\]/,/-- \[cursor-loader:end\]/d' "$execs_file" > "$tmp"
+    mv "$tmp" "$execs_file"
+
+    if [ -z "$theme" ]; then
+        return
+    fi
+
+    # Inject setcursor right after the first hyprland.start line using sed
+    local inject_lines="    $marker_start\n    hl.exec_cmd(\\\"hyprctl setcursor $theme $size\\\")\n    $marker_end"
+    sed "/hl\.on(\"hyprland\.start\"/a\\$inject_lines" "$execs_file" > "$tmp"
+
+    if grep -qF -- "$marker_start" "$tmp"; then
+        mv "$tmp" "$execs_file"
+        _log INFO "Injected 'hyprctl setcursor $theme $size' into custom/execs.lua"
+    else
+        rm -f "$tmp"
+        _log INFO "No hyprland.start block found in custom/execs.lua — skipping injection."
+    fi
+}
 
 configure_cursor_theme() {
     # All status messages are redirected to stderr (>&2) to avoid being captured by command substitution.
@@ -139,6 +174,27 @@ configure_cursor_theme() {
 }
 
 #-------------------------------------------------------
+# Cursor Size Selector
+#-------------------------------------------------------
+configure_cursor_size() {
+    local sizes=("20" "24" "28" "32" "36" "48")
+    local default_idx=3
+
+    echo "" >&2
+    echo "Select cursor size (current recommendation for 1.2x scale: 32):" >&2
+    select size in "${sizes[@]}"; do
+        if [[ -n "$size" ]]; then
+            echo "$size"
+            return 0
+        else
+            echo "Invalid option. Using default (32)." >&2
+            echo "${sizes[$default_idx]}"
+            return 0
+        fi
+    done
+}
+
+#-------------------------------------------------------
 # Main Logic
 #-------------------------------------------------------
 main() {
@@ -148,7 +204,9 @@ main() {
     local configure_status=$?
 
     if [ "$configure_status" -eq 0 ]; then
-        update_cursor_conf "$selected_cursor_theme" "24" # Default cursor size is 24
+        local selected_size
+        selected_size=$(configure_cursor_size)
+        update_cursor_conf "$selected_cursor_theme" "$selected_size"
     else
         _log INFO "Cursor configuration was exited. No changes made."
     fi

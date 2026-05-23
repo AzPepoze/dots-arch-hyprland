@@ -1,3 +1,4 @@
 #!/bin/bash
 git pull
-bash scripts/menu.sh
+(cd tui && go build -o tui-app)
+./tui/tui-app "$@"

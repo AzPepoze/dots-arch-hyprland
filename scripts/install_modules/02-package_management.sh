@@ -17,3 +17,11 @@ install_downgrade() {
 install_bun() {
      install_paru_package "bun-bin" "Bun"
 }
+
+install_npm() {
+     install_pacman_package "npm" "npm"
+}
+
+install_pnpm() {
+     install_pacman_package "pnpm" "pnpm"
+}

@@ -112,23 +112,6 @@ select_and_install_catppuccin_grub_theme() {
     PS3="#? "
 }
 
-install_catppuccin_fish_theme() {
-    _log INFO "Installing Catppuccin theme for fish shell..."
-    if ! fish -c "type fisher >/dev/null 2>&1"; then
-        _log WARN "Fisher command not found, attempting to source it for current session..."
-        if [ -f "$HOME/.config/fish/functions/fisher.fish" ]; then
-            _log INFO "Fisher sourced successfully."
-        else
-            _log ERROR "Could not find fisher.fish to source. Please install Fisher first."
-            return 1
-        fi
-    fi
-
-    fish -c "fisher install catppuccin/fish"
-    fish -c "fish_config theme save 'Catppuccin Mocha'"
-    _log SUCCESS "Catppuccin Mocha theme installed and set for fish shell."
-}
-
 install_cursors() {
     echo "Starting Cursor Theme Installation..."
     if [ ! -d "$BUILT_THEMES_DIR" ] || [ -z "$(ls -A "$BUILT_THEMES_DIR")" ]; then

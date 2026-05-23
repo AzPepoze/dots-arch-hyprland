@@ -64,6 +64,22 @@ cleanup_coredumps() {
     sudo rm -rf /var/lib/systemd/coredump/*
 }
 
+cleanup_npm_cache() {
+    _header "Cleaning Up NPM Cache"
+    if command -v npm &> /dev/null; then
+        _log INFO "Cleaning NPM cache..."
+        npm cache clean --force
+    fi
+}
+
+cleanup_pnpm_cache() {
+    _header "Cleaning Up PNPM Cache"
+    if command -v pnpm &> /dev/null; then
+        _log INFO "Pruning PNPM store..."
+        pnpm store prune
+    fi
+}
+
 cleanup_bun_cache() {
     _header "Cleaning Up Bun Cache"
     
@@ -86,6 +102,8 @@ run_cleanup() {
     cleanup_flatpak
     cleanup_journal_logs
     cleanup_coredumps
+    cleanup_npm_cache
+    cleanup_pnpm_cache
     cleanup_bun_cache
 }
 

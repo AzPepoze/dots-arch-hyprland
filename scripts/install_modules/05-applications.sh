@@ -9,11 +9,6 @@ install_rofi() {
     install_paru_package "rofi" "Rofi"
 }
 
-install_ulauncher_catppuccin_theme() {
-    echo "Installing Catppuccin theme for Ulauncher..."
-    curl https://raw.githubusercontent.com/catppuccin/ulauncher/main/install.py -fsSL | python3 - -f mocha -a pink
-    echo "Catppuccin theme for Ulauncher installation attempted."
-}
 
 install_vscode() {
     install_paru_package "visual-studio-code-bin" "VS Code"
@@ -178,24 +173,6 @@ install_virt_packages() {
         echo "KVM is not available. Virtualization might be slower."
     fi
     echo "Virtualization packages installation complete."
-}
-
-install_fisher() {
-    _log INFO "Installing Fisher (fish shell plugin manager)..."
-    if fish -c "type fisher >/dev/null 2>&1"; then
-        _log INFO "Fisher is already installed."
-        return 0
-    fi
-
-    fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
-    fish -c "set -U fish_user_paths ~/.config/fish/functions $fish_user_paths"
-    _log SUCCESS "Fisher installed."
-}
-
-install_gcalcli() {
-    echo "Installing gcalcli..."
-    install_paru_package "gcalcli" "gcalcli"
-    _log SUCCESS "gcalcli installation completed successfully."
 }
 
 install_n8n() {
