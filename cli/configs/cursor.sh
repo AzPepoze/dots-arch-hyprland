@@ -77,6 +77,12 @@ EOL
         flatpak override --filesystem=~/.icons:ro --user || true
     fi
 
+    # Apply cursor immediately via hyprctl if running under Hyprland
+    if command -v hyprctl &> /dev/null && [ -n "$HYPRLAND_INSTANCE_SIGNATURE" ]; then
+        _log INFO "Applying cursor live via hyprctl..."
+        hyprctl setcursor "$theme" "$size" || _log WARN "hyprctl setcursor failed"
+    fi
+
     _log SUCCESS "Successfully generated '$cursor_lua_file' and applied system settings for theme '$theme' with size $size."
 }
 

@@ -8,8 +8,9 @@ if home then
     if is_file_exists(home .. "/.config/hypr/gpu.lua") then
         require("gpu")
     end
+    -- Load cursor settings directly from cursor.lua
     if is_file_exists(home .. "/.config/hypr/cursor.lua") then
-        require("cursor")
+        dofile(home .. "/.config/hypr/cursor.lua")
     end
 end
 
