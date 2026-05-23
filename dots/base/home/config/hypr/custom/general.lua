@@ -33,3 +33,5 @@ hl.config({
         allow_tearing = false
     }
 })
+
+require("monitors")
