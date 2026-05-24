@@ -62,6 +62,11 @@ launch_messenger() {
 #-------------------------------------------------------
 # Startup Programs
 #-------------------------------------------------------
+if [ -n "$HYPRCURSOR_THEME" ] && [ -n "$HYPRCURSOR_SIZE" ]; then
+    echo "Setting cursor theme to $HYPRCURSOR_THEME ($HYPRCURSOR_SIZE)..."
+    hyprctl setcursor "$HYPRCURSOR_THEME" "$HYPRCURSOR_SIZE"
+fi
+
 launch_app "Linux Wallpaper Engine GUI" "sleep 1 && linux-wallpaperengine-gui --minimized &"
 launch_messenger
 # launch_app "Discord" "hyprctl dispatch exec \"[workspace 1 silent] discord\"" 2

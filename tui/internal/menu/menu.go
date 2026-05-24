@@ -65,6 +65,7 @@ func NewMenuModel(repoDir string) MenuModel {
 			{Text: "Compile Cursor Themes (win2xcur)", ActionID: 7},
 			{Text: "Set Kitty as Default Terminal", ActionID: 8},
 			{Text: "Force Reload QuickShell", ActionID: 9},
+			{Text: "Reset QuickShell Settings (Illogical Impulse)", ActionID: 13},
 			{Text: "--- Special Configurations & Fun ---", IsHeader: true},
 			{Text: "Enable/Disable SDDM Autologin", ActionID: 10},
 			{Text: "Amogus Sus Cowsay", ActionID: 11},
@@ -210,6 +211,8 @@ func (m MenuModel) handleUtilsSelect() (tea.Model, tea.Cmd) {
 		c = exec.Command("bash", filepath.Join(m.repoDir, "cli", "utils", "set_kitty_main_terminal.sh"))
 	case 9:
 		c = exec.Command("bash", filepath.Join(m.repoDir, "cli", "utils", "force_reload_quickshell.sh"))
+	case 13:
+		c = exec.Command("bash", filepath.Join(m.repoDir, "cli", "utils", "reset_quickshell.sh"))
 	case 10:
 		c = exec.Command("sudo", "bash", filepath.Join(m.repoDir, "cli", "configs", "auto_login.sh"))
 	case 11:
