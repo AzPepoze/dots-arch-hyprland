@@ -7,11 +7,16 @@
 install_inotify_tools() {
      install_pacman_package "inotify-tools" "inotify-tools"
 }
+install_power_profiles() {
+    _log INFO "Installing Power Profiles Daemon and removing conflicting packages..."
 
-install_power_options() {
-    _log INFO "Installing Power Options (TLP) and removing conflicting packages..."
+    if systemctl is-active --quiet tlp.service || systemctl is-enabled --quiet tlp.service; then
+        _log WARN "TLP service is active or enabled. Stopping, disabling, and masking..."
+        sudo systemctl disable --now tlp.service || true
+        sudo systemctl mask tlp.service || true
+    fi
 
-    local conflicting_packages=("power-profiles-daemon" "auto-cpufreq")
+    local conflicting_packages=("tlp" "tlp-rdw" "auto-cpufreq")
 
     for pkg in "${conflicting_packages[@]}"; do
         if pacman -Qs "$pkg" > /dev/null; then
@@ -20,12 +25,12 @@ install_power_options() {
         fi
     done
 
-    install_paru_package "tlp" "TLP"
-    install_paru_package "tlp-rdw" "TLP Radio Device Wizard"
+    install_pacman_package "power-profiles-daemon" "Power Profiles Daemon"
 
-    _log INFO "Enabling and starting tlp.service..."
-    sudo systemctl enable --now tlp.service
-    _log SUCCESS "TLP installed and configured. Conflicting packages removed."
+    _log INFO "Enabling and starting power-profiles-daemon.service..."
+    sudo systemctl unmask power-profiles-daemon.service 2>/dev/null || true
+    sudo systemctl enable --now power-profiles-daemon.service
+    _log SUCCESS "Power Profiles Daemon installed and configured. Conflicting packages removed."
 }
 
 install_fuse() {

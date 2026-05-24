@@ -228,8 +228,7 @@ install_ananicy_cpp() {
 }
 
 install_mission_center() {
-     check_flatpak
-     install_flatpak_package "io.missioncenter.MissionCenter" "Mission Center"
+     install_paru_package "mission-center" "Mission Center"
 }
 
 install_jq() {

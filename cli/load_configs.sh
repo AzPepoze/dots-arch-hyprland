@@ -87,7 +87,7 @@ load_configs_from_source() {
         esac
 
         # Now iterate through all items (files and directories) within the base_type_dir
-        # e.g., 'dots/base/home/config', 'dots/base/home/local', 'dots/base/etc/power-options'
+        # e.g., 'dots/base/home/config', 'dots/base/home/local'
         find "$base_type_dir" -mindepth 1 -print0 | while IFS= read -r -d $'\0' item; do
             local relative_path="${item#$base_type_dir/}" # Path relative to base_type_dir
             local system_dest_path=""

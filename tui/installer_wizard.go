@@ -59,7 +59,7 @@ func (m *InstallerModel) applyPreset() {
 				continue
 			}
 
-			if item.Func == "install_power_options" {
+			if item.Func == "install_power_profiles" {
 				item.IsSelected = (m.hardwareIdx == 1)
 				continue
 			}
@@ -77,7 +77,7 @@ func (m *InstallerModel) applyPreset() {
 }
 
 func (m InstallerModel) updateWizard(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
-	optionCounts := [3]int{2, 2, 4}
+	optionCounts := [3]int{3, 2, 4}
 
 	switch msg.String() {
 	case "q", "ctrl+c", "esc":
@@ -103,9 +103,18 @@ func (m InstallerModel) updateWizard(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "enter", " ":
 		switch m.wizardStep {
 		case WizardHardware:
-			m.hardwareIdx = m.wizardCursor
-			m.wizardStep = WizardGPU
-			m.wizardCursor = 0
+			if m.wizardCursor == 2 {
+				for bIdx := range m.boxes {
+					for iIdx := range m.boxes[bIdx].Items {
+						m.boxes[bIdx].Items[iIdx].IsSelected = false
+					}
+				}
+				m.stage = StageMainGrid
+			} else {
+				m.hardwareIdx = m.wizardCursor
+				m.wizardStep = WizardGPU
+				m.wizardCursor = 0
+			}
 		case WizardGPU:
 			m.graphicsIdx = m.wizardCursor
 			m.wizardStep = WizardUseCase
@@ -164,7 +173,8 @@ func (m InstallerModel) renderWizard() string {
 			title: "What type of system is this?",
 			options: []wizardOption{
 				{"PC / Desktop", "Optimized for stationary performance"},
-				{"Laptop", "Enables TLP battery management & power tweaks"},
+				{"Laptop", "Enables laptop-specific configurations"},
+				{"Skip Wizard", "Go directly to the package selection page"},
 			},
 		},
 		{
@@ -190,7 +200,7 @@ func (m InstallerModel) renderWizard() string {
 	subtitleStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#5C6370")).Italic(true)
 
 	if m.wizardStep == WizardSummary {
-		hardwareLabels := []string{"PC / Desktop", "Laptop"}
+		hardwareLabels := []string{"PC / Desktop", "Laptop", "Skip Wizard"}
 		gpuLabels := []string{"AMD / Intel", "NVIDIA"}
 		useCaseLabels := []string{"🎮  Gaming", "💻  Development", "🌐  General / Daily", "⚡  Minimal"}
 
@@ -202,7 +212,7 @@ func (m InstallerModel) renderWizard() string {
 
 		var previewItems []string
 		if m.hardwareIdx == 1 {
-			previewItems = append(previewItems, "  • Install Power Options (TLP)")
+			previewItems = append(previewItems, "  • Install Power Profiles Daemon")
 		}
 		if m.graphicsIdx == 1 {
 			previewItems = append(previewItems, "  • Install NVIDIA Drivers (Proprietary)")

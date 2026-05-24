@@ -27,7 +27,7 @@ done
 
 repo_dir=$(dirname "$(realpath "$0")")
 source "$repo_dir/scripts/install_modules/helpers.sh"
-source "$repo_dir/scripts/install_modules/04-apps.sh"
+source "$repo_dir/scripts/install_modules/05-applications.sh"
 source "$repo_dir/scripts/utils/list_gpu.sh" # Source list_gpu.sh for GPU validation
 
 

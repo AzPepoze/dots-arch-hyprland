@@ -128,11 +128,12 @@ func getInstallItems(repoDir string) []InstallItem {
 		{IsHeader: true, Text: "--- System Services & Libraries ---"},
 		{
 			Type:        "essential",
-			Text:        "Install Power Options (TLP)",
-			Func:        "install_power_options",
+			Text:        "Install Power Profiles Daemon",
+			Func:        "install_power_profiles",
 			Group:       "Power Management",
-			Description: "Installs TLP, an advanced power management tool for Linux, optimized for laptops to save battery power.",
+			Description: "Installs power-profiles-daemon for power profile management (Power Saver, Balanced, Performance).",
 		},
+
 		{
 			Type:        "essential",
 			Text:        "Install FUSE",
@@ -163,10 +164,10 @@ func getInstallItems(repoDir string) []InstallItem {
 		},
 		{
 			Type:        "essential",
-			Text:        "Install Mission Center (Flatpak)",
+			Text:        "Install Mission Center",
 			Func:        "install_mission_center",
 			Group:       "System Monitoring",
-			Description: "Installs Mission Center (Flatpak version), a modern and fast system monitor for Linux.",
+			Description: "Installs Mission Center (AUR version), a modern and fast system monitor for Linux.",
 		},
 
 		{IsHeader: true, Text: "--- Desktop & Theming ---"},
