@@ -1,4 +1,4 @@
-package main
+package menu
 
 import (
 	"fmt"
@@ -130,9 +130,10 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 		case "enter", " ":
-			if m.state == StateMainMenu {
+			switch m.state {
+			case StateMainMenu:
 				return m.handleMainSelect()
-			} else if m.state == StateUtilsMenu {
+			case StateUtilsMenu:
 				return m.handleUtilsSelect()
 			}
 		}
@@ -229,7 +230,7 @@ func (m MenuModel) handleUtilsSelect() (tea.Model, tea.Cmd) {
 
 func (m MenuModel) View() string {
 	if m.state == StateWaitingKey {
-		return lipgloss.NewStyle().Foreground(lipgloss.Color("#98C379")).Bold(true).Render("\n"+m.waitingMsg+"\n")
+		return lipgloss.NewStyle().Foreground(lipgloss.Color("#98C379")).Bold(true).Render("\n" + m.waitingMsg + "\n")
 	}
 
 	var lines []string
@@ -275,7 +276,7 @@ func (m MenuModel) View() string {
 	return lipgloss.JoinVertical(lipgloss.Left, lines...) + "\n"
 }
 
-func runMainMenu(repoDir string) error {
+func Run(repoDir string) error {
 	c := exec.Command("fastfetch")
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr

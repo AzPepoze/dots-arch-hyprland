@@ -1,4 +1,4 @@
-package main
+package installer
 
 import (
 	"fmt"
@@ -322,7 +322,7 @@ func (m InstallerModel) View() string {
 	return fmt.Sprintf("\n%s\n\n%s\n\n%s\n\n%s\n", title, finalLayout, descriptionBox, footer)
 }
 
-func runInstaller(repoDir string) error {
+func Run(repoDir string) error {
 	m := NewInstallerModel(repoDir)
 	p := tea.NewProgram(m)
 	finalModel, err := p.Run()

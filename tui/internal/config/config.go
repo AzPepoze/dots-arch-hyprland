@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"encoding/json"
@@ -13,23 +13,23 @@ import (
 )
 
 type AppConfig struct {
-	ReplaceColor  bool   `json:"replace_end4_color_to_catpuccin"`
-	Model         string `json:"model"`
-	RemoveBg      bool   `json:"remove_end4_background"`
-	UseShutdown   bool   `json:"use_hyprshutdown"`
+	ReplaceColor bool   `json:"replace_end4_color_to_catpuccin"`
+	Model        string `json:"model"`
+	RemoveBg     bool   `json:"remove_end4_background"`
+	UseShutdown  bool   `json:"use_hyprshutdown"`
 }
 
 type ConfigModel struct {
-	repoDir      string
-	configPath   string
-	config       AppConfig
-	cursor       int
-	models       []string
-	modelIdx     int
-	width        int
-	height       int
-	saved        bool
-	quitted      bool
+	repoDir    string
+	configPath string
+	config     AppConfig
+	cursor     int
+	models     []string
+	modelIdx   int
+	width      int
+	height     int
+	saved      bool
+	quitted    bool
 }
 
 func NewConfigModel(repoDir string) ConfigModel {
@@ -216,7 +216,7 @@ func (m ConfigModel) View() string {
 	return fmt.Sprintf("\n%s\n\n%s\n\n%s\n", title, box, footer)
 }
 
-func runConfigEditor(repoDir string) error {
+func Run(repoDir string) error {
 	m := NewConfigModel(repoDir)
 	p := tea.NewProgram(m)
 	finalModel, err := p.Run()

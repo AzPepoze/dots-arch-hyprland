@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"tui/internal/config"
+	"tui/internal/installer"
+	"tui/internal/menu"
 )
 
 func findRepoDir() (string, error) {
@@ -52,17 +56,17 @@ func main() {
 	}
 	switch cmd {
 	case "menu":
-		if err := runMainMenu(repoDir); err != nil {
+		if err := menu.Run(repoDir); err != nil {
 			fmt.Printf("Main Menu error: %v\n", err)
 			os.Exit(1)
 		}
 	case "install":
-		if err := runInstaller(repoDir); err != nil {
+		if err := installer.Run(repoDir); err != nil {
 			fmt.Printf("Installer error: %v\n", err)
 			os.Exit(1)
 		}
 	case "config":
-		if err := runConfigEditor(repoDir); err != nil {
+		if err := config.Run(repoDir); err != nil {
 			fmt.Printf("Config Editor error: %v\n", err)
 			os.Exit(1)
 		}
