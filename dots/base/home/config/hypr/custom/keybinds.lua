@@ -29,8 +29,8 @@ hl.bind("SUPER + Print", hl.dsp.exec_cmd("mkdir -p $(xdg-user-dir PICTURES)/Scre
 -------------------------------------------------------
 -- System / Keyboard
 -------------------------------------------------------
-hl.bind("ALT + Shift_L", hl.dsp.exec_cmd("hyprctl switchxkblayout main next"), { description = "System: Switch Keyboard Layout" })
-hl.bind("SHIFT + Alt_L", hl.dsp.exec_cmd("hyprctl switchxkblayout main next"))
+hl.bind("ALT + Shift_L", hl.dsp.exec_cmd("hyprctl switchxkblayout main next"), { locked = true, description = "System: Switch Keyboard Layout" })
+hl.bind("SHIFT + Alt_L", hl.dsp.exec_cmd("hyprctl switchxkblayout main next"), { locked = true })
 hl.bind("SHIFT + CTRL + D", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_SOURCE@ toggle"), { description = "System: Toggle Mic Mute" })
 
 -------------------------------------------------------
