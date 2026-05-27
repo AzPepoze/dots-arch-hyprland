@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 
 # Paths to potential config files
-CONFIG_REPO="$HOME/dots-arch-hyprland/dots/base/home/config/hypr/hyprland/keybinds.conf"
-CONFIG_ACTIVE="$HOME/.config/hypr/hyprland/keybinds.conf"
+CONFIG_REPO="$HOME/dots-arch-hyprland/dots/base/home/config/hypr/custom/keybinds.lua"
+CONFIG_ACTIVE="$HOME/.config/hypr/custom/keybinds.lua"
 
 # Function to toggle modifier in a file
 toggle_mod() {
     local file="$1"
     if [ -f "$file" ]; then
-        local current_mod=$(grep "^\$workspace =" "$file" | cut -d' ' -f3)
-        if [ "$current_mod" = "Alt" ]; then
-            sed -i "s/^\$workspace = Alt/\$workspace = Super/" "$file"
-            echo "Super"
+        local current_mod=$(grep "^local mod = " "$file" | cut -d'"' -f2)
+        if [ "$current_mod" = "ALT" ] || [ "$current_mod" = "Alt" ]; then
+            sed -i 's/^local mod = "[^"]*"/local mod = "SUPER"/' "$file"
+            echo "SUPER"
         else
-            sed -i "s/^\$workspace = Super/\$workspace = Alt/" "$file"
-            echo "Alt"
+            sed -i 's/^local mod = "[^"]*"/local mod = "ALT"/' "$file"
+            echo "ALT"
         fi
     fi
 }
