@@ -53,8 +53,8 @@ install_rate_mirrors_and_rank() {
 
 setup_git_credential_management() {
     _log INFO "Setting up Git Credential Management..."
-    echo "Installing git-credential-manager..."
-    paru -S --needed --noconfirm git-credential-manager || { _log ERROR "Failed to install git-credential-manager."; return 1; }
+    echo "Installing git-credential-manager-bin..."
+    paru -S --needed --noconfirm git-credential-manager-bin || { _log ERROR "Failed to install git-credential-manager-bin."; return 1; }
     
     echo "Configuring Git credential helper..."
     git config --global credential.helper manager || { _log ERROR "Failed to configure credential.helper."; return 1; }
