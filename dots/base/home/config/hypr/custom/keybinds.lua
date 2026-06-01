@@ -39,7 +39,7 @@ hl.bind("SHIFT + CTRL + D", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_SOURCE@ tog
 hl.bind(mod .. " + C", hl.dsp.window.close(), { description = "Window: Close" })
 hl.bind(mod .. " + F4", hl.dsp.window.close(), { description = "Window: Close" })
 hl.bind("SUPER + C", hl.dsp.exec_cmd(archSetupScripts .. "/dontkillsteam.sh"), { description = "Window: Close (Steam safe)" })
-hl.bind("SUPER + F4", hl.dsp.exec_cmd("hyprctl kill"), { description = "Window: Force kill" })
+hl.bind("SUPER + F4", hl.dsp.exec_cmd("bash " .. archSetupScripts .. "/utils/force_kill_active.sh"), { description = "Window: Force kill active" })
 
 -------------------------------------------------------
 -- Focus Window
