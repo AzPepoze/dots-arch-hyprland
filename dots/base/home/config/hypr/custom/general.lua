@@ -31,6 +31,9 @@ hl.config({
         border_size = 1,
         resize_on_border = true,
         allow_tearing = false
+    },
+    cursor = {
+        no_hardware_cursors = 1
     }
 })
 
