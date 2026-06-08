@@ -224,7 +224,7 @@ add_fstab_entry() {
             # Use current user's UID/GID, or fallback to 1000 if not detectable
             local current_uid=${SUDO_UID:-$(id -u)}
             local current_gid=${SUDO_GID:-$(id -g)}
-            mount_options="uid=${current_uid},gid=${current_gid},rw,user,exec,nofail,umask=000"
+            mount_options="force,uid=${current_uid},gid=${current_gid},rw,user,exec,nofail,umask=000"
             dump_pass="0 0"
         fi
 
