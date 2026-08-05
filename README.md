@@ -67,6 +67,62 @@ To apply your changes, run the main script and select **Load Dotfile Configurati
 bash main.sh
 ```
 
+## 🌙 Suspend, Resume, and Laptop Lids
+
+This overlay uses the end-4 configuration's single `hypridle` owner (started by
+Hyprland once per session). It does not add a second `hypridle`, Quickshell,
+Waybar, AGS, portal, or wallpaper user service. The selected login session is
+`hyprland-uwsm.desktop`, so UWSM remains responsible for session lifecycle.
+
+Before suspend, `hypridle` asks logind to lock the session. After resume it
+runs `~/.config/hypr/scripts/resume.sh`, which waits for Hyprland IPC for at
+most two seconds, re-enables DPMS for every active output, and then requests a
+best-effort renderer reload. It detects the active instance through `hyprctl`;
+it does not disable a monitor and does not hardcode `eDP-1` or `eDP-2`.
+
+There are no lid-switch bindings in this repository. Logind handles lid close
+and Hyprland's normal monitor detection handles lid open. Keep panel setup in
+`~/.config/hypr/monitors.conf` (or `monitors.lua`), and identify a laptop panel
+with:
+
+```bash
+hyprctl monitors all
+```
+
+Look for an output name beginning with `eDP`; use that detected name only when
+you deliberately create a monitor profile. Do not use `monitor ...,disable`
+for lid handling: DPMS keeps the panel's mode, scale, position, and workspace
+assignment intact.
+
+If the display is black after resume, switch to another TTY and run this as the
+logged-in desktop user (replace `0` with the instance shown by `hyprctl
+instances` when needed):
+
+```bash
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+hyprctl instances
+hyprctl -i 0 dispatch 'hl.dsp.dpms({ action = "enable" })' || hyprctl -i 0 dispatch dpms on
+hyprctl -i 0 dispatch 'hl.dsp.force_renderer_reload()'
+```
+
+For the legacy dispatcher fallback, use `hyprctl -i 0 dispatch dpms on`. Do not
+kill Hyprland to recover: that leaves session-owned components alive. To exit
+cleanly, use the QuickShell session menu; when installed, `hyprshutdown` is
+the supported command-line exit helper in this setup.
+
+Collect a focused diagnostic report with:
+
+```bash
+~/.config/hypr/scripts/debug-resume.sh
+```
+
+It reports Hyprland state, failed user units, and only relevant kernel/user
+journal lines (DRM/GPU, suspend/resume, Hyprland, lock/idle, and portals). No
+environment variables are printed. Renderer recovery can still vary with GPU
+drivers and firmware; this repository does not add NVIDIA options or kernel
+parameters. Test both the internal panel alone and any external-monitor layout
+you use.
+
 ## 🙏 Acknowledgements
 
 The foundation of this setup, especially the Hyprland configuration and overall structure, is heavily inspired by and built upon the excellent work from [end-4's dotfiles](https://github.com/end-4/dots-hyprland).
