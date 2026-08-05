@@ -193,26 +193,6 @@ install_linux_headers() {
     install_pacman_package "linux-headers" "Linux Headers"
 }
 
-install_nvidia_drivers() {
-    _log INFO "Installing NVIDIA drivers and utilities..."
-    local nvidia_packages=(
-        "nvidia" "nvidia-utils" "nvidia-settings" "libva" "libva-nvidia-driver"
-    )
-    for package in "${nvidia_packages[@]}"; do
-        install_paru_package "$package" "$package"
-    done
-
-    local nvidia_conf="/etc/modprobe.d/nvidia.conf"
-    if [ ! -f "$nvidia_conf" ]; then
-        _log INFO "Creating NVIDIA configuration for DRM KMS..."
-        echo "options nvidia-drm modeset=1" | sudo tee "$nvidia_conf" > /dev/null
-    fi
-
-    _log INFO "Updating initramfs..."
-    sudo mkinitcpio -P
-    _log SUCCESS "NVIDIA drivers installation completed. Please reboot."
-}
-
 install_systemd_oomd() {
     echo "Installing and enabling systemd-oomd.service..."
     sudo systemctl enable --now systemd-oomd.service

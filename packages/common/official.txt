@@ -1,0 +1,14 @@
+# Hyprland session lifecycle
+hyprland
+hypridle
+hyprlock
+uwsm
+
+# Portals: Hyprland handles screen capture; GTK supplies file pickers.
+xdg-desktop-portal
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+
+# One power manager for both desktops and laptops.
+power-profiles-daemon
+upower

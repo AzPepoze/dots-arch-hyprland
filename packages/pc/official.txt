@@ -1,0 +1,2 @@
+# The common profile is sufficient for a desktop.
+# Keep this file for future PC-only packages.

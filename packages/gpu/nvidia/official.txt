@@ -1,0 +1,2 @@
+# Native userspace library for an already installed NVIDIA kernel driver.
+nvidia-utils

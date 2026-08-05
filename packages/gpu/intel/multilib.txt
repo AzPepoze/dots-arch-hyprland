@@ -1,0 +1,3 @@
+# Optional 32-bit game support; installed only when multilib is enabled.
+lib32-mesa
+lib32-vulkan-intel

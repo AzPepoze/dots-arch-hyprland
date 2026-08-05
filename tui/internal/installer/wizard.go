@@ -54,13 +54,13 @@ func (m *InstallerModel) applyPreset() {
 				continue
 			}
 
-			if item.Func == "install_nvidia_drivers" {
-				item.IsSelected = (m.graphicsIdx == 1)
+			if item.Func == "install_detected_graphics_stack" {
+				item.IsSelected = (m.graphicsIdx == 0)
 				continue
 			}
 
-			if item.Func == "install_power_profiles" {
-				item.IsSelected = (m.hardwareIdx == 1)
+			if item.Func == "install_laptop_power_diagnostics" {
+				item.IsSelected = false
 				continue
 			}
 
@@ -178,10 +178,10 @@ func (m InstallerModel) renderWizard() string {
 			},
 		},
 		{
-			title: "What GPU does this system use?",
+			title: "Install a detected GPU userspace stack?",
 			options: []wizardOption{
-				{"AMD / Intel", "Uses open-source Mesa drivers (recommended)"},
-				{"NVIDIA", "Installs proprietary NVIDIA drivers & modules"},
+				{"Auto-detect", "Installs maintained userspace packages for every detected GPU"},
+				{"Skip", "Leaves the current graphics packages unchanged"},
 			},
 		},
 		{
@@ -201,7 +201,7 @@ func (m InstallerModel) renderWizard() string {
 
 	if m.wizardStep == WizardSummary {
 		hardwareLabels := []string{"PC / Desktop", "Laptop", "Skip Wizard"}
-		gpuLabels := []string{"AMD / Intel", "NVIDIA"}
+		gpuLabels := []string{"Auto-detect", "Skip"}
 		useCaseLabels := []string{"🎮  Gaming", "💻  Development", "🌐  General / Daily", "⚡  Minimal"}
 
 		summaryLines := []string{
@@ -211,11 +211,9 @@ func (m InstallerModel) renderWizard() string {
 		}
 
 		var previewItems []string
-		if m.hardwareIdx == 1 {
-			previewItems = append(previewItems, "  • Install Power Profiles Daemon")
-		}
-		if m.graphicsIdx == 1 {
-			previewItems = append(previewItems, "  • Install NVIDIA Drivers (Proprietary)")
+		previewItems = append(previewItems, "  • Install Session & Power Profile")
+		if m.graphicsIdx == 0 {
+			previewItems = append(previewItems, "  • Install detected GPU userspace packages")
 		}
 		switch m.useCaseIdx {
 		case 0:

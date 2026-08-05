@@ -91,13 +91,6 @@ func getInstallItems(repoDir string) []InstallItem {
 		},
 		{
 			Type:        "optional",
-			Text:        "Install NVIDIA Drivers (Proprietary)",
-			Func:        "install_nvidia_drivers",
-			Group:       "Graphics Drivers",
-			Description: "Installs NVIDIA drivers and utilities for better graphics performance.",
-		},
-		{
-			Type:        "optional",
 			Text:        "Install v4l2loopback (for Droidcam/OBS)",
 			Func:        "install_v4l2loopback",
 			Group:       "Kernel Modules",
@@ -128,10 +121,24 @@ func getInstallItems(repoDir string) []InstallItem {
 		{IsHeader: true, Text: "--- System Services & Libraries ---"},
 		{
 			Type:        "essential",
-			Text:        "Install Power Profiles Daemon",
-			Func:        "install_power_profiles",
+			Text:        "Install Session & Power Profile",
+			Func:        "install_power_session_stack",
 			Group:       "Power Management",
-			Description: "Installs power-profiles-daemon for power profile management (Power Saver, Balanced, Performance).",
+			Description: "Installs the maintained Hyprland/UWSM/portal stack and one power manager (PPD), with PC/laptop-specific packages and conflict cleanup.",
+		},
+		{
+			Type:        "optional",
+			Text:        "Install Detected GPU Userspace Stack",
+			Func:        "install_detected_graphics_stack",
+			Group:       "Graphics Drivers",
+			Description: "Detects AMD, Intel, and NVIDIA GPUs and installs only their maintained userspace packages; NVIDIA kernel drivers remain an explicit hardware choice.",
+		},
+		{
+			Type:        "essential_laptop",
+			Text:        "Install Laptop Power Diagnostics",
+			Func:        "install_laptop_power_diagnostics",
+			Group:       "Power Management",
+			Description: "Installs powertop for measurement only; no automatic tuning service is enabled.",
 		},
 
 		{

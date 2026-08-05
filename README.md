@@ -123,6 +123,21 @@ drivers and firmware; this repository does not add NVIDIA options or kernel
 parameters. Test both the internal panel alone and any external-monitor layout
 you use.
 
+### Package and power profiles
+
+The installer keeps package ownership in small manifests under [`packages/`](packages/README.md):
+common session/power packages, PC and laptop additions, optional diagnostics,
+GPU userspace stacks, and conflicting packages to remove are maintained
+separately.
+
+Both PC and laptop profiles use `power-profiles-daemon`; do not run TLP,
+auto-cpufreq, tuned, system76-power, or laptop-mode-tools beside it. The
+installer detects installed conflicts, shows their exact names, and asks before
+removing them. Laptop mode adds `brightnessctl`; `powertop` is optional and is
+never enabled with blanket auto-tuning. GPU packages are detected by PCI vendor,
+and NVIDIA kernel drivers remain a separate explicit choice because they must
+match the GPU generation and kernel.
+
 ## 🙏 Acknowledgements
 
 The foundation of this setup, especially the Hyprland configuration and overall structure, is heavily inspired by and built upon the excellent work from [end-4's dotfiles](https://github.com/end-4/dots-hyprland).

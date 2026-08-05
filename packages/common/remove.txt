@@ -1,0 +1,9 @@
+# Competing power managers. Only installed entries are removed.
+tlp
+tlp-rdw
+tlp-pd
+auto-cpufreq
+tuned
+tuned-ppd
+system76-power
+laptop-mode-tools

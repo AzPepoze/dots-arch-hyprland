@@ -1,0 +1,4 @@
+# Native Mesa userspace stack for Intel GPUs.
+mesa
+vulkan-intel
+intel-media-driver

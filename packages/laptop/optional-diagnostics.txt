@@ -1,0 +1,2 @@
+# Diagnostic only: no auto-tune service is enabled.
+powertop
