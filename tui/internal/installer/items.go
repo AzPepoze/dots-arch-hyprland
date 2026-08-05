@@ -187,13 +187,6 @@ func getInstallItems(repoDir string) []InstallItem {
 		},
 		{
 			Type:        "essential",
-			Text:        "Install hyprshutdown",
-			Func:        "install_hyprshutdown",
-			Group:       "Window Manager",
-			Description: "Installs hyprshutdown, a utility to gracefully shut down Hyprland.",
-		},
-		{
-			Type:        "essential",
 			Text:        "Install nwg-look",
 			Func:        "install_nwg_look",
 			Group:       "Theming & Styles",

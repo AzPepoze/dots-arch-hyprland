@@ -183,8 +183,6 @@ END_OF_EXPECT
 		_log SUCCESS "dots-hyprland unstable update finished."
 	fi
 
-	patch_end4_session_commands
-
 	cd - >/dev/null
 
 	if [ -f "$backup_monitor_config_path" ]; then

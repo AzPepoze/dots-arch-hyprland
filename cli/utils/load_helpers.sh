@@ -175,45 +175,6 @@ patch_quickshell_background() {
 	echo "------------------------------------"
 }
 
-patch_end4_session_commands() {
-	if [[ "$(get_config_bool 'use_hyprshutdown' 'true')" != "true" ]]; then
-		_log INFO "Skipping hyprshutdown patch based on config.json setting."
-		return
-	fi
-
-	echo "--- Patching End4 Session Commands to use hyprshutdown ---"
-	local end4_dots_dir="$HOME/dots-hyprland/dots"
-
-	if [ ! -d "$end4_dots_dir" ]; then
-		_log WARN "End4 dots directory not found. Skipping patch."
-		return
-	fi
-
-	local session_qml="$end4_dots_dir/.config/quickshell/ii/modules/common/functions/Session.qml"
-	if [ -f "$session_qml" ]; then
-		echo "Patching $session_qml"
-		sed -i 's#Quickshell.execDetached(\["pkill", "-i", "Hyprland"\]);#Quickshell.execDetached(["hyprshutdown"]);#g' "$session_qml"
-		sed -i 's#systemctl poweroff || loginctl poweroff#hyprshutdown -p "systemctl poweroff"#g' "$session_qml"
-		sed -i 's#reboot || loginctl reboot#hyprshutdown -p "systemctl reboot"#g' "$session_qml"
-	fi
-
-	local end4_keybinds="$end4_dots_dir/.config/hypr/hyprland/keybinds.conf"
-	if [ -f "$end4_keybinds" ]; then
-		echo "Patching $end4_keybinds"
-		sed -i 's#exec, systemctl poweroff || loginctl poweroff#exec, hyprshutdown -p "systemctl poweroff"#g' "$end4_keybinds"
-	fi
-
-	local wlogout_layout="$end4_dots_dir/.config/wlogout/layout"
-	if [ -f "$wlogout_layout" ]; then
-		echo "Patching $wlogout_layout"
-		sed -i 's#hyprctl clients -j | jq -r .[^.]*.pid. | xargs kill; systemctl poweroff || loginctl poweroff#hyprshutdown -p "systemctl poweroff"#g' "$wlogout_layout"
-		sed -i 's#hyprctl clients -j | jq -r .[^.]*.pid. | xargs kill; systemctl reboot || loginctl reboot#hyprshutdown -p "systemctl reboot"#g' "$wlogout_layout"
-	fi
-
-	_log SUCCESS "Successfully patched End4 session commands."
-	echo "------------------------------------"
-}
-
 get_config_bool() {
 	local key=$1
 	local default_value=$2

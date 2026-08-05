@@ -107,8 +107,8 @@ hyprctl -i 0 dispatch 'hl.dsp.force_renderer_reload()'
 
 For the legacy dispatcher fallback, use `hyprctl -i 0 dispatch dpms on`. Do not
 kill Hyprland to recover: that leaves session-owned components alive. To exit
-cleanly, use the QuickShell session menu; when installed, `hyprshutdown` is
-the supported command-line exit helper in this setup.
+cleanly, use the QuickShell session menu or run `uwsm stop` from a terminal in
+the session. UWSM will stop the compositor and its session-owned user units.
 
 Collect a focused diagnostic report with:
 

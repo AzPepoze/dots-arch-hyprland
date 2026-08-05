@@ -1,3 +1,5 @@
 # Packages formerly installed by this repository and no longer used.
 vicinae
 vicinae-bin
+hyprshutdown
+hyprshutdown-git

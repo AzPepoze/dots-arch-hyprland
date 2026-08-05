@@ -130,11 +130,6 @@ install_nwg_displays() {
     fi
 }
 
-install_hyprshutdown() {
-    # Run without noconfirm (false) to allow resolving package conflicts manually
-    install_paru_package "hyprshutdown-git" "hyprshutdown" "false"
-}
-
 _check_grub_file_exists() {
      if [ ! -f "/etc/default/grub" ]; then
           _log ERROR "/etc/default/grub not found. Is GRUB installed?"

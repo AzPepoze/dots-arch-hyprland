@@ -16,7 +16,6 @@ type AppConfig struct {
 	ReplaceColor bool   `json:"replace_end4_color_to_catpuccin"`
 	Model        string `json:"model"`
 	RemoveBg     bool   `json:"remove_end4_background"`
-	UseShutdown  bool   `json:"use_hyprshutdown"`
 }
 
 type ConfigModel struct {
@@ -38,7 +37,6 @@ func NewConfigModel(repoDir string) ConfigModel {
 		ReplaceColor: false,
 		Model:        "laptop",
 		RemoveBg:     false,
-		UseShutdown:  false,
 	}
 
 	if data, err := os.ReadFile(configPath); err == nil {
@@ -98,7 +96,7 @@ func (m ConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor--
 			}
 		case "down", "j":
-			if m.cursor < 5 {
+			if m.cursor < 4 {
 				m.cursor++
 			}
 		case "left", "h":
@@ -125,11 +123,9 @@ func (m ConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case 2:
 				m.config.RemoveBg = !m.config.RemoveBg
 			case 3:
-				m.config.UseShutdown = !m.config.UseShutdown
-			case 4:
 				m.saved = true
 				return m, tea.Quit
-			case 5:
+			case 4:
 				m.quitted = true
 				return m, tea.Quit
 			}
@@ -192,17 +188,16 @@ func (m ConfigModel) View() string {
 	lines = append(lines, renderRow(0, "Replace QuickShell Color to Catppuccin", boolStr(m.config.ReplaceColor)))
 	lines = append(lines, renderRow(1, "Hardware Model Mode", lipgloss.NewStyle().Foreground(lipgloss.Color("#61AFEF")).Render("< "+m.config.Model+" >")))
 	lines = append(lines, renderRow(2, "Remove QuickShell Background image", boolStr(m.config.RemoveBg)))
-	lines = append(lines, renderRow(3, "Use hyprshutdown for Power management", boolStr(m.config.UseShutdown)))
 
 	lines = append(lines, "")
 	saveRow := "  [ Save Configuration & Reload ]"
-	if m.cursor == 4 {
+	if m.cursor == 3 {
 		saveRow = lipgloss.NewStyle().Foreground(lipgloss.Color("#98C379")).Bold(true).Render("> [ Save Configuration & Reload ]")
 	}
 	lines = append(lines, saveRow)
 
 	cancelRow := "  [ Cancel & Exit ]"
-	if m.cursor == 5 {
+	if m.cursor == 4 {
 		cancelRow = lipgloss.NewStyle().Foreground(lipgloss.Color("#E06C75")).Bold(true).Render("> [ Cancel & Exit ]")
 	}
 	lines = append(lines, cancelRow)
