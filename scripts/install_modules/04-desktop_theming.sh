@@ -114,6 +114,8 @@ select_and_install_catppuccin_grub_theme() {
 
 install_cursors() {
     echo "Starting Cursor Theme Installation..."
+    install_jq
+
     if [ ! -d "$BUILT_THEMES_DIR" ] || [ -z "$(ls -A "$BUILT_THEMES_DIR")" ]; then
         _log ERROR "Built cursor themes not found in '$BUILT_THEMES_DIR'."
         echo "Please run the './build_cursors.sh' script from the project root first."
@@ -178,4 +180,3 @@ copy_thai_fonts_css() {
     cp -v "$source_file" "$dest_file"
     _log SUCCESS "Successfully copied thai_fonts.css to the Vesktop directory."
 }
-

@@ -135,11 +135,6 @@ install_hyprshutdown() {
     install_paru_package "hyprshutdown-git" "hyprshutdown" "false"
 }
 
-install_vicinae() {
-    install_paru_package "vicinae" "Vicinae"
-    install_paru_package "vicinae-bin" "Vicinae-bin"
-}
-
 _check_grub_file_exists() {
      if [ ! -f "/etc/default/grub" ]; then
           _log ERROR "/etc/default/grub not found. Is GRUB installed?"
@@ -209,21 +204,4 @@ install_ananicy_cpp() {
 
 install_mission_center() {
      install_paru_package "mission-center" "Mission Center"
-}
-
-install_jq() {
-    echo "Installing jq..."
-    install_paru_package "jq" "jq"
-    _log SUCCESS "jq installation completed successfully."
-}
-
-install_xorg_xhost_and_xhost_rule() {
-    echo "Checking for xorg-xhost..."
-    if ! pacman -Qs xorg-xhost &> /dev/null; then
-        echo "xorg-xhost not found. Installing with paru..."
-        paru -S --needed --noconfirm xorg-xhost
-    fi
-
-    echo "Setting xhost rule for localuser:root..."
-    xhost si:localuser:root
 }

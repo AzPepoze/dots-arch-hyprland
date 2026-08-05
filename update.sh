@@ -131,7 +131,6 @@ echo
 
 update_system_packages
 update_vscode
-fix_vscode_permissions
 update_flatpak
 update_bun_global_packages
 load_v4l2loopback_module

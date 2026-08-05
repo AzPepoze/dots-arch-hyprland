@@ -36,7 +36,7 @@ func (m *InstallerModel) applyPreset() {
 		"install_npm":                     true,
 		"install_pnpm":                    true,
 		"install_bun":                     true,
-		"fix_vscode_permissions":          true,
+		"install_vscode":                  true,
 		"setup_git_credential_management": true,
 	}
 
@@ -224,8 +224,8 @@ func (m InstallerModel) renderWizard() string {
 			)
 		case 1:
 			previewItems = append(previewItems,
+				"  • Install VS Code",
 				"  • Install npm, pnpm, bun",
-				"  • Fix VSCode Insiders permissions",
 				"  • Setup Git Credential Management",
 			)
 		}

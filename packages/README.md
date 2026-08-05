@@ -18,6 +18,8 @@ there is no separate `libva-mesa-driver` package to install.
 `power-profiles-daemon` is the only enabled power manager. The installer checks
 `common/remove.txt` and asks before removing installed conflicts. It disables
 their services first and never removes unrelated packages to force cleanup.
+It also checks `obsolete/remove.txt` and offers to remove packages that this
+repository used previously but no longer starts or installs.
 
 The laptop diagnostic profile installs `powertop` but does not enable
 `powertop --auto-tune`; blanket tuning can regress USB, PCIe, audio, networking,

@@ -26,13 +26,6 @@ func getInstallItems(repoDir string) []InstallItem {
 		},
 		{
 			Type:        "essential",
-			Text:        "Install Chaotic AUR",
-			Func:        "bash " + filepath.Join(repoDir, "cli", "install_chaotic_aur.sh"),
-			Group:       "Package Managers",
-			Description: "Installs the Chaotic-AUR repository, providing a large collection of pre-built AUR packages.",
-		},
-		{
-			Type:        "essential",
 			Text:        "Install Flatpak",
 			Func:        "install_flatpak",
 			Group:       "Package Managers",
@@ -201,13 +194,6 @@ func getInstallItems(repoDir string) []InstallItem {
 		},
 		{
 			Type:        "essential",
-			Text:        "Install xorg-xhost and set root access",
-			Func:        "install_xorg_xhost_and_xhost_rule",
-			Group:       "Window Manager",
-			Description: "Installs xorg-xhost for X server access control and sets a rule to allow root to connect to the X server.",
-		},
-		{
-			Type:        "essential",
 			Text:        "Install nwg-look",
 			Func:        "install_nwg_look",
 			Group:       "Theming & Styles",
@@ -236,6 +222,13 @@ func getInstallItems(repoDir string) []InstallItem {
 		},
 		{
 			Type:        "essential",
+			Text:        "Install Cursor Theme",
+			Func:        "install_cursors",
+			Group:       "Theming & Styles",
+			Description: "Installs one of the cursor themes bundled with this repository and applies it to GTK and Flatpak applications.",
+		},
+		{
+			Type:        "essential",
 			Text:        "Install Fish Shell",
 			Func:        "install_fish",
 			Group:       "Shell & Terminal",
@@ -258,14 +251,7 @@ func getInstallItems(repoDir string) []InstallItem {
 			Description: "Installs Rofi, a window switcher, application launcher, and dmenu replacement.",
 		},
 		{
-			Type:        "essential",
-			Text:        "Install Vicinae",
-			Func:        "install_vicinae",
-			Group:       "Application Launcher",
-			Description: "Installs Vicinae, application launcher.",
-		},
-		{
-			Type:        "essential",
+			Type:        "optional",
 			Text:        "Install Zen Browser",
 			Func:        "install_zen_browser",
 			Group:       "Browsers",
@@ -279,18 +265,11 @@ func getInstallItems(repoDir string) []InstallItem {
 			Description: "Installs the Microsoft Edge (Stable) browser.",
 		},
 		{
-			Type:        "essential",
-			Text:        "Install VS Code Insiders",
-			Func:        "install_vscode_insiders",
+			Type:        "optional",
+			Text:        "Install VS Code",
+			Func:        "install_vscode",
 			Group:       "Development Tools",
-			Description: "Installs VS Code Insiders, the daily updated version of Visual Studio Code with the latest features.",
-		},
-		{
-			Type:        "essential",
-			Text:        "Fix VSCode Insiders permissions",
-			Func:        "fix_vscode_permissions",
-			Group:       "Development Tools",
-			Description: "Fixes permissions for VS Code Insiders to ensure proper functionality.",
+			Description: "Installs the stable Visual Studio Code package.",
 		},
 		{
 			Type:        "optional",
@@ -314,7 +293,7 @@ func getInstallItems(repoDir string) []InstallItem {
 			Description: "Installs Bun, a fast all-in-one JavaScript runtime, packager, transpiler, and runner.",
 		},
 		{
-			Type:        "essential",
+			Type:        "optional",
 			Text:        "Install Discord",
 			Func:        "install_discord",
 			Group:       "Media & Graphical",
@@ -328,7 +307,7 @@ func getInstallItems(repoDir string) []InstallItem {
 			Description: "Installs the Vencord mod for Discord.",
 		},
 		{
-			Type:        "essential",
+			Type:        "optional",
 			Text:        "Install Steam",
 			Func:        "install_steam",
 			Group:       "Media & Graphical",
@@ -392,13 +371,6 @@ func getInstallItems(repoDir string) []InstallItem {
 		},
 		{
 			Type:        "essential",
-			Text:        "Install jq",
-			Func:        "install_jq",
-			Group:       "CLI Utilities",
-			Description: "Installs jq, a lightweight and flexible command-line JSON processor.",
-		},
-		{
-			Type:        "essential",
 			Text:        "Install Set up Git Credential Management",
 			Func:        "setup_git_credential_management",
 			Group:       "CLI Utilities",
@@ -426,7 +398,7 @@ func getInstallItems(repoDir string) []InstallItem {
 			Description: "Installs QDirStat, a graphical disk usage display.",
 		},
 		{
-			Type:        "optional",
+			Type:        "essential",
 			Text:        "Install GParted (Partition Editor)",
 			Func:        "install_gparted",
 			Group:       "CLI Utilities",

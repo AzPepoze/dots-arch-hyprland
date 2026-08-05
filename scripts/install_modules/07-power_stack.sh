@@ -35,8 +35,8 @@ _install_official_profile() {
     sudo pacman -S --needed --noconfirm "${packages[@]}"
 }
 
-_installed_conflicting_power_packages() {
-    local remove_file="$repo_dir/packages/common/remove.txt"
+_installed_packages_from_profile() {
+    local remove_file="$1"
     local package
 
     while IFS= read -r package; do
@@ -64,7 +64,7 @@ _power_stack_model() {
 
 remove_conflicting_power_managers() {
     local conflicts=()
-    mapfile -t conflicts < <(_installed_conflicting_power_packages)
+    mapfile -t conflicts < <(_installed_packages_from_profile "$repo_dir/packages/common/remove.txt")
 
     if [ "${#conflicts[@]}" -eq 0 ]; then
         _log INFO "No conflicting power managers are installed."
@@ -91,11 +91,32 @@ remove_conflicting_power_managers() {
     sudo pacman -Rns --noconfirm "${conflicts[@]}"
 }
 
+remove_obsolete_packages() {
+    local obsolete=()
+    mapfile -t obsolete < <(_installed_packages_from_profile "$repo_dir/packages/obsolete/remove.txt")
+
+    if [ "${#obsolete[@]}" -eq 0 ]; then
+        return 0
+    fi
+
+    _log WARN "Installed packages no longer used by these dotfiles: ${obsolete[*]}"
+    if [ "${POWER_STACK_DRY_RUN:-0}" = "1" ]; then
+        return 0
+    fi
+
+    if ask_yes_no "Remove these obsolete packages?"; then
+        sudo pacman -Rns --noconfirm "${obsolete[@]}"
+    else
+        _log INFO "Keeping obsolete packages by request."
+    fi
+}
+
 install_power_session_stack() {
     local model
     model=$(_power_stack_model)
 
     remove_conflicting_power_managers || return 1
+    remove_obsolete_packages || return 1
     _install_official_profile "$repo_dir/packages/common/official.txt" "Common session/power profile" || return 1
 
     case "$model" in

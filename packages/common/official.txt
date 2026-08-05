@@ -12,3 +12,6 @@ xdg-desktop-portal-gtk
 # One power manager for both desktops and laptops.
 power-profiles-daemon
 upower
+
+# Required by repository configuration and Hyprland helper scripts.
+jq

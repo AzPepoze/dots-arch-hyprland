@@ -14,17 +14,6 @@ install_vscode() {
     install_paru_package "visual-studio-code-bin" "VS Code"
 }
 
-fix_vscode_permissions() {
-    echo "Attempting to fix permissions for VS Code..."
-    local vscode_path="/usr/share/code"
-    if [ -d "$vscode_path" ]; then
-        sudo chown -R $(whoami):$(whoami) /usr/share/code
-        _log SUCCESS "Fixed permissions for VS Code at $vscode_path"
-    else
-        _log INFO "VS Code installation path $vscode_path not found. Skipping permission fix."
-    fi
-}
-
 install_discord() {
     install_paru_package "discord" "Discord"
     configure_discord
