@@ -21,16 +21,45 @@ if ! grep -q -E "^\s*GRUB_DEFAULT=saved\s*$" "$GRUB_CONFIG_FILE"; then
     _log ERROR "Your GRUB configuration is not ready for this script."
     echo "This script requires 'GRUB_DEFAULT=saved' to be set in $GRUB_CONFIG_FILE."
     echo ""
-    echo "Please do the following:"
-    echo "1. Edit the file: sudo nano $GRUB_CONFIG_FILE"
-    echo "2. Change the line 'GRUB_DEFAULT=0' to 'GRUB_DEFAULT=saved'"
-    echo "3. Save the file and run: sudo grub-mkconfig -o /boot/grub/grub.cfg"
-    echo "4. Rerun this script after making the changes."
-    exit 1
+    read -r -p "Configure it now and regenerate GRUB's configuration? (y/N) " configure_grub
+
+    if [[ ! "$configure_grub" =~ ^[yY]$ ]]; then
+        echo "No changes were made."
+        exit 1
+    fi
+
+    if ! sudo -v; then
+        _log ERROR "Administrator authentication is required to configure GRUB."
+        exit 1
+    fi
+
+    backup_file="${GRUB_CONFIG_FILE}.bak.$(date +%Y%m%d%H%M%S)"
+    if ! sudo cp -- "$GRUB_CONFIG_FILE" "$backup_file"; then
+        _log ERROR "Could not create a backup at $backup_file."
+        exit 1
+    fi
+
+    if grep -q -E "^[[:space:]]*GRUB_DEFAULT=" "$GRUB_CONFIG_FILE"; then
+        if ! sudo sed -i -E 's|^[[:space:]]*GRUB_DEFAULT=.*$|GRUB_DEFAULT=saved|' "$GRUB_CONFIG_FILE"; then
+            _log ERROR "Could not update $GRUB_CONFIG_FILE."
+            exit 1
+        fi
+    elif ! printf '%s\n' 'GRUB_DEFAULT=saved' | sudo tee -a "$GRUB_CONFIG_FILE" >/dev/null; then
+        _log ERROR "Could not add GRUB_DEFAULT to $GRUB_CONFIG_FILE."
+        exit 1
+    fi
+
+    _log INFO "Regenerating GRUB configuration..."
+    if ! sudo grub-mkconfig -o /boot/grub/grub.cfg; then
+        _log ERROR "GRUB configuration generation failed. A backup is available at $backup_file."
+        exit 1
+    fi
+
+    _log SUCCESS "GRUB is ready. A backup was saved to $backup_file."
 fi
 
 GRUB_CFG="/boot/grub/grub.cfg"
-mapfile -t entries < <(grep "^menuentry" "$GRUB_CFG" | awk -F"'" '{print $2}')
+mapfile -t entries < <(sudo grep "^menuentry" "$GRUB_CFG" | awk -F"'" '{print $2}')
 
 if [ ${#entries[@]} -eq 0 ]; then
     _log ERROR "Could not find any boot entries in $GRUB_CFG"
@@ -60,7 +89,7 @@ select choice in "${entries[@]}" "Quit"; do
         
         if [ $? -eq 0 ]; then
             _log SUCCESS "Rebooting now..."
-            reboot
+            sudo reboot
         else
             _log ERROR "grub-reboot command failed. Please check your permissions."
             exit 1
