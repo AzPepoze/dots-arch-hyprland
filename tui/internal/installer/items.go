@@ -266,6 +266,13 @@ func getInstallItems(repoDir string) []InstallItem {
 		},
 		{
 			Type:        "optional",
+			Text:        "Install Tabby",
+			Func:        "install_tabby",
+			Group:       "Shell & Terminal",
+			Description: "Installs Tabby, a configurable terminal, SSH, and serial client from the AUR binary package.",
+		},
+		{
+			Type:        "optional",
 			Text:        "Install npm",
 			Func:        "install_npm",
 			Group:       "Development Tools",

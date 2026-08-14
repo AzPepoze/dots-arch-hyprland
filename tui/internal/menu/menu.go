@@ -50,6 +50,7 @@ func NewMenuModel(repoDir string) MenuModel {
 			{Text: "Update System (Normal)", ActionID: 3},
 			{Text: "Update System (Full)", ActionID: 4},
 			{Text: "Open Utility Tools Menu", ActionID: 5},
+			{Text: "Wi-Fi Stability Workarounds", ActionID: 7},
 			{Text: "Quit", ActionID: 6},
 		},
 		utilOpts: []MenuOption{
@@ -181,6 +182,12 @@ func (m MenuModel) handleMainSelect() (tea.Model, tea.Cmd) {
 		return m, nil
 	case 6:
 		return m, tea.Quit
+	case 7:
+		c := exec.Command("bash", filepath.Join(m.repoDir, "cli", "configs", "wifi_stability.sh"))
+		m.nextState = StateMainMenu
+		return m, tea.ExecProcess(c, func(err error) tea.Msg {
+			return processFinishedMsg{err}
+		})
 	}
 	return m, nil
 }

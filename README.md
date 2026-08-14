@@ -138,6 +138,15 @@ never enabled with blanket auto-tuning. GPU packages are detected by PCI vendor,
 and NVIDIA kernel drivers remain a separate explicit choice because they must
 match the GPU generation and kernel.
 
+### Realtek RTL8821CU USB Wi-Fi stability
+
+The main management menu includes **Wi-Fi Stability Workarounds**. It opens a
+dedicated submenu for the Realtek RTL8821CU USB adapter (`0bda:c811`) with
+individual fixes for the rtw88 driver's deep low-power state, NetworkManager
+Wi-Fi power saving, and targeted USB autosuspend, plus an **Apply all** option.
+The changes take effect after rebooting (or after reconnecting the adapter for
+the USB rule).
+
 ## 🙏 Acknowledgements
 
 The foundation of this setup, especially the Hyprland configuration and overall structure, is heavily inspired by and built upon the excellent work from [end-4's dotfiles](https://github.com/end-4/dots-hyprland).

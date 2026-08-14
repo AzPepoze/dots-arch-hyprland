@@ -14,6 +14,10 @@ install_vscode() {
     install_paru_package "visual-studio-code-bin" "VS Code"
 }
 
+install_tabby() {
+    install_paru_package "tabby-bin" "Tabby"
+}
+
 install_discord() {
     install_paru_package "discord" "Discord"
     configure_discord

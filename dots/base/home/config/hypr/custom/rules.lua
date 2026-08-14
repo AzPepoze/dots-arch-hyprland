@@ -1,6 +1,7 @@
 -- Custom Window Rules
 
 hl.window_rule({match = {class = "^(kitty)$"}, opacity = "0.80 0.80 1.0", no_blur = false})
+hl.window_rule({match = {class = "(?i)^(tabby)$"}, no_blur = false})
 hl.window_rule({match = {class = "^(org.kde.dolphin)$"}, opacity = "0.80 0.80 1.0", no_blur = false})
 
 -- Float + pin pavucontrol-qt bottom-right (base only covers "pavucontrol" class)
