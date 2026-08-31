@@ -96,6 +96,12 @@ for i = 1, 10 do
 end
 
 -------------------------------------------------------
+-- Workspace Navigation (Win + Arrow)
+-------------------------------------------------------
+hl.bind("SUPER + Left", hl.dsp.focus({ workspace = "r-1" }), { description = "Workspace: Previous (Left)" })
+hl.bind("SUPER + Right", hl.dsp.focus({ workspace = "r+1" }), { description = "Workspace: Next (Right)" })
+
+-------------------------------------------------------
 -- Special Workspace (Scratchpad)
 -------------------------------------------------------
 hl.bind(mod .. " + S", hl.dsp.workspace.toggle_special("special"), { description = "Workspace: Toggle Scratchpad" })
