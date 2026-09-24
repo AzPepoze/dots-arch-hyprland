@@ -5,6 +5,7 @@
 # Interactive SSH key manager and public-key auto-deployer.
 #
 # - Lists every host from ~/.ssh/config and shows which key each one resolves to.
+# - Adds new hosts to ~/.ssh/config from a user@host string.
 # - Generates ed25519 keys.
 # - Auto-deploys your public key to one host or all of them (ssh-copy-id), then
 #   verifies passwordless login. Safe to re-run.
@@ -13,6 +14,7 @@
 # Usage:
 #   bash cli/ssh_key_manager.sh                 # interactive menu
 #   bash cli/ssh_key_manager.sh --list
+#   bash cli/ssh_key_manager.sh --add user@host[:port] [--name NAME] [--key PATH]
 #   bash cli/ssh_key_manager.sh --generate NAME
 #   bash cli/ssh_key_manager.sh --deploy HOST|all [--key PATH]
 #   bash cli/ssh_key_manager.sh --verify HOST|all
@@ -445,6 +447,226 @@ set_identity() {
 	fi
 }
 
+_host_exists() {
+	local alias="$1"
+	[ -f "$SSH_CONFIG" ] || return 1
+	awk -v host="$alias" '
+		/^[[:space:]]*#/ { next }
+		/^[[:space:]]*[Hh]ost[[:space:]]/ {
+			n = split($0, parts, /[[:space:]]+/)
+			for (i = 1; i <= n; i++) if (parts[i] == host) found = 1
+		}
+		END { exit(found ? 0 : 1) }
+	' "$SSH_CONFIG"
+}
+
+_remove_host_block() {
+	local alias="$1"
+	local tmp
+	tmp=$(mktemp)
+	if awk -v host="$alias" '
+		BEGIN { inblock = 0 }
+		/^[[:space:]]*#/ { if (!inblock) print; next }
+		/^[[:space:]]*[Hh]ost[[:space:]]/ {
+			inblock = 0
+			n = split($0, parts, /[[:space:]]+/)
+			for (i = 1; i <= n; i++) if (parts[i] == host) inblock = 1
+			if (!inblock) print
+			next
+		}
+		{ if (!inblock) print }
+	' "$SSH_CONFIG" >"$tmp"; then
+		cat -s "$tmp" >"$tmp.squeezed"
+		mv "$tmp.squeezed" "$tmp"
+		mv "$tmp" "$SSH_CONFIG"
+		chmod 600 "$SSH_CONFIG"
+	else
+		rm -f "$tmp" "$tmp.squeezed"
+		return 1
+	fi
+}
+
+_append_host_block() {
+	local alias="$1" host="$2" user="$3" port="$4" key="$5"
+
+	# Drop trailing blank lines so the separator below is exactly one blank line.
+	if [ -s "$SSH_CONFIG" ]; then
+		local stripped
+		stripped=$(mktemp)
+		awk '
+			{ lines[NR] = $0 }
+			END {
+				last = NR
+				while (last > 0 && lines[last] ~ /^[[:space:]]*$/) last--
+				for (i = 1; i <= last; i++) print lines[i]
+			}
+		' "$SSH_CONFIG" >"$stripped"
+		mv "$stripped" "$SSH_CONFIG"
+	fi
+
+	{
+		[ -s "$SSH_CONFIG" ] && echo ""
+		echo "Host $alias"
+		echo "    HostName $host"
+		echo "    User $user"
+		if [ -n "$port" ] && [ "$port" != "22" ]; then
+			echo "    Port $port"
+		fi
+		if [ -n "$key" ]; then
+			echo "    IdentityFile $key"
+		fi
+	} >>"$SSH_CONFIG"
+	chmod 600 "$SSH_CONFIG"
+}
+
+# Parses "user@host:port", "user@host", "host:port" or "host" into the globals
+# TARGET_USER / TARGET_HOST / TARGET_PORT.
+_parse_target() {
+	local input="${1// /}"
+	TARGET_USER=""
+	TARGET_HOST=""
+	TARGET_PORT=""
+
+	if [[ "$input" == *"@"* ]]; then
+		TARGET_USER="${input%%@*}"
+		input="${input#*@}"
+	fi
+
+	if [[ "$input" == *":"* ]]; then
+		TARGET_HOST="${input%%:*}"
+		TARGET_PORT="${input##*:}"
+	else
+		TARGET_HOST="$input"
+	fi
+
+	[ -n "$TARGET_USER" ] || TARGET_USER="$USER"
+	[ -n "$TARGET_HOST" ]
+}
+
+_selected_key_to_path() {
+	# $1 = selection (number or path); echoes a private key path or nothing.
+	local selection="$1"
+	local available=()
+	mapfile -t available < <(ls -1 "$SSH_DIR"/*.pub 2>/dev/null)
+
+	if [[ "$selection" =~ ^[0-9]+$ ]] && [ "$selection" -ge 1 ] && [ "$selection" -le ${#available[@]} ]; then
+		echo "$SSH_DIR/$(basename "${available[$((selection - 1))]}" .pub)"
+	elif [ -n "$selection" ]; then
+		echo "${selection/#\~/$HOME}"
+	fi
+}
+
+# Adds (or replaces) a host block. Args: INPUT [NAME] [KEY]
+_add_host() {
+	local input="$1"
+	local name="${2:-}"
+	local key="${3:-}"
+
+	if ! _parse_target "$input"; then
+		_log ERROR "Could not parse '$input'. Expected user@host or host."
+		return 1
+	fi
+	local user="$TARGET_USER" host="$TARGET_HOST" port="$TARGET_PORT"
+
+	if [ -z "$name" ]; then
+		read -rp "Name for this host [$host]: " name
+		name="${name:-$host}"
+	fi
+	name="${name//[[:space:]]/}"
+	if [ -z "$name" ]; then
+		_log ERROR "Host name cannot be empty."
+		return 1
+	fi
+	if [[ "$name" == *[*?!]* ]]; then
+		_log ERROR "Host name cannot contain wildcard characters (* ? !)."
+		return 1
+	fi
+
+	if [ -z "$key" ]; then
+		local available=()
+		mapfile -t available < <(ls -1 "$SSH_DIR"/*.pub 2>/dev/null)
+		if [ ${#available[@]} -gt 0 ]; then
+			echo "IdentityFile (blank = default):"
+			local i=1 p
+			for p in "${available[@]}"; do
+				echo "  $i) $(basename "$p" .pub)"
+				i=$((i + 1))
+			done
+			local selection
+			read -rp "Choose key number, a key path, or leave blank: " selection
+			key="$(_selected_key_to_path "$selection")"
+		fi
+	fi
+
+	if _host_exists "$name"; then
+		_log WARN "Host '$name' already exists in '$SSH_CONFIG'."
+		if ! ask_yes_no "Replace the existing entry?"; then
+			read -rp "Enter a different name (blank to cancel): " name
+			name="${name//[[:space:]]/}"
+			if [ -z "$name" ] || _host_exists "$name"; then
+				_log INFO "Cancelled."
+				return 0
+			fi
+		fi
+	fi
+
+	echo
+	echo "About to add to $SSH_CONFIG:"
+	echo
+	echo "Host $name"
+	echo "    HostName $host"
+	echo "    User $user"
+	if [ -n "$port" ] && [ "$port" != "22" ]; then
+		echo "    Port $port"
+	fi
+	if [ -n "$key" ]; then
+		echo "    IdentityFile $key"
+	fi
+	echo
+	if ! ask_yes_no "Add this host?"; then
+		_log INFO "Cancelled."
+		return 0
+	fi
+
+	_ensure_ssh_dir
+	[ -f "$SSH_CONFIG" ] || : >"$SSH_CONFIG"
+
+	local backup="$SSH_DIR/config.bak-$(date +%Y%m%d_%H%M%S)"
+	cp "$SSH_CONFIG" "$backup"
+	chmod 600 "$backup"
+	_log INFO "Backed up config to '$backup'."
+
+	if _host_exists "$name"; then
+		_remove_host_block "$name"
+	fi
+	_append_host_block "$name" "$host" "$user" "$port" "$key"
+	_log SUCCESS "Added host '$name' -> ${user}@${host}${port:+:$port}."
+
+	if ask_yes_no "Deploy your public key to '$host' now?"; then
+		local pub
+		pub="$(_default_pub)"
+		if [ -f "$pub" ]; then
+			deploy_key_to "$name" "$pub"
+		else
+			_log WARN "No public key found to deploy. Generate one first (menu option 2)."
+		fi
+	fi
+
+	if ask_yes_no "Test passwordless login to '$name' now?"; then
+		_report_login "$name"
+	fi
+}
+
+add_host_flow() {
+	local input
+	read -rp "Host to add (user@host[:port], or just host): " input
+	if [ -z "$input" ]; then
+		_log INFO "Cancelled."
+		return 0
+	fi
+	_add_host "$input"
+}
+
 show_keys() {
 	_header "SSH Keys"
 
@@ -484,7 +706,8 @@ main() {
 		echo "4) Set/repair IdentityFile for a host"
 		echo "5) Test passwordless login for host(s)"
 		echo "6) Show keys and agent status"
-		echo "7) Exit"
+		echo "7) Add a new host to ~/.ssh/config"
+		echo "8) Exit"
 		echo
 		read -rp "Choose an option: " choice
 
@@ -495,7 +718,8 @@ main() {
 		4) _header "Set IdentityFile"; set_identity ;;
 		5) _header "Test Passwordless Login"; verify_flow ;;
 		6) show_keys ;;
-		7)
+		7) _header "Add Host"; add_host_flow ;;
+		8)
 			echo "Bye."
 			break
 			;;
@@ -506,7 +730,7 @@ main() {
 }
 
 usage() {
-	sed -n '3,20p' "$0" | sed 's/^# \{0,1\}//'
+	sed -n '3,22p' "$0" | sed 's/^# \{0,1\}//'
 }
 
 #-------------------------------------------------------
@@ -524,6 +748,32 @@ case "$action" in
 --list)
 	load_hosts
 	_list_hosts
+	;;
+--add)
+	if [ -z "${2:-}" ]; then
+		_log ERROR "Usage: $0 --add user@host[:port] [--name NAME] [--key PATH]"
+		exit 1
+	fi
+	add_target="$2"
+	shift 2
+	add_name=""
+	add_key=""
+	while [ $# -gt 0 ]; do
+		case "$1" in
+		--name)
+			add_name="$2"
+			shift 2
+			;;
+		--key)
+			add_key="$2"
+			shift 2
+			;;
+		*)
+			shift
+			;;
+		esac
+	done
+	_add_host "$add_target" "$add_name" "$add_key"
 	;;
 --generate)
 	if [ -z "${2:-}" ]; then
