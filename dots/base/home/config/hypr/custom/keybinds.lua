@@ -27,6 +27,11 @@ hl.bind("Print", hl.dsp.global("quickshell:regionScreenshot"), { description = "
 hl.bind("SUPER + Print", hl.dsp.exec_cmd("mkdir -p $(xdg-user-dir PICTURES)/Screenshots && FILE=$(xdg-user-dir PICTURES)/Screenshots/Screenshot_$(date +'%Y-%m-%d_%H-%M-%S').png && grim \"$FILE\" && wl-copy < \"$FILE\" && notify-send \"Screenshot Saved\" \"Image saved to $FILE\""), { description = "Utilities: Capture screen" })
 
 -------------------------------------------------------
+-- Shell / Bar
+-------------------------------------------------------
+hl.bind("SUPER + SHIFT + W", hl.dsp.exec_cmd(archSetupScripts .. "/hypr/keybinds/toggle_bar_autohide.sh"), { description = "Shell: Toggle bar auto-hide" })
+
+-------------------------------------------------------
 -- System / Keyboard
 -------------------------------------------------------
 hl.bind("ALT + Shift_L", hl.dsp.exec_cmd("hyprctl switchxkblayout main next"), { locked = true, description = "System: Switch Keyboard Layout" })
