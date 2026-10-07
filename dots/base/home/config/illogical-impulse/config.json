@@ -279,9 +279,9 @@
                 "enable": true,
                 "height": 260,
                 "placementStrategy": "free",
-                "ringSize": 380,
+                "ringSize": 344,
                 "sensitivity": 1,
-                "style": "bars",
+                "style": "aurora",
                 "x": 0,
                 "y": 840,
                 "z": -1000
@@ -328,9 +328,9 @@
                 "enable": true
             }
         },
-        "borderless": "true",
+        "borderless": "transparent",
         "bottom": false,
-        "centerOnlyReserveFrame": false,
+        "centerOnlyReserveFrame": true,
         "cornerStyle": 0,
         "divider": {
             "spacing": 20,
@@ -346,7 +346,7 @@
         "followFrameColor": false,
         "frameColor": "black",
         "frameThickness": 4,
-        "groupColor": "layer1",
+        "groupColor": "layer0",
         "indicators": {
             "notifications": {
                 "showUnreadCount": true
@@ -354,18 +354,22 @@
         },
         "layouts": {
             "leftLayout": [
-                "launcherButton",
-                "workspaces",
-                "activeWindow"
+                "leftSidebarButton",
+                "activeWindow",
+                "media"
             ],
             "middleLayout": [
-                "clockWidget"
+                "clockWidget",
+                "workspaces",
+                "utilButtons"
             ],
             "rightLayout": [
                 "sysTray",
-                "utilButtons",
-                "systemIcons",
-                "powerButton"
+                "updatesCount",
+                "networkSpeed",
+                "bluetooth",
+                "hyprlandXkbIndicator",
+                "systemIcons"
             ]
         },
         "media": {
@@ -403,7 +407,7 @@
             "showColorPicker": true,
             "showDarkModeToggle": true,
             "showKeyboardToggle": true,
-            "showMicToggle": false,
+            "showMicToggle": true,
             "showPerformanceProfileToggle": false,
             "showScreenRecord": false,
             "showScreenSnip": true,
@@ -455,7 +459,7 @@
     },
     "custom": {
         "colorizeIcon": true,
-        "distroIcon": "google-gemini-symbolic",
+        "distroIcon": "linux-symbolic",
         "iconColor": "onLayer0",
         "iconsPath": ""
     },
@@ -610,7 +614,7 @@
         },
         "showLockedText": false,
         "showMedia": true,
-        "showToolbars": false,
+        "showToolbars": true,
         "showWidgets": false,
         "useHyprlock": false
     },
@@ -755,9 +759,9 @@
         "bottomGroup": true,
         "cornerOpen": {
             "bottom": false,
-            "bottomLeftAction": "sidebarLeftOpen",
+            "bottomLeftAction": "sessionOpen",
             "bottomRightAction": "sidebarRightOpen",
-            "clickless": true,
+            "clickless": false,
             "clicklessCornerEnd": true,
             "clicklessCornerVerticalOffset": 1,
             "cornerRegionHeight": 5,
@@ -874,11 +878,11 @@
         "closeAfterSelection": true,
         "columns": 4,
         "liveWallpapersPath": "",
-        "showBlurBackground": false,
+        "showBlurBackground": true,
         "showHomePath": true,
         "showSearchbar": true,
         "sortMode": "time",
-        "useSystemFileDialog": false,
+        "useSystemFileDialog": true,
         "userPath": "",
         "wallhavenApiKey": "",
         "wallhavenCategories": "111",
