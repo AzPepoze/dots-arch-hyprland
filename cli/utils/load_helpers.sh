@@ -162,15 +162,47 @@ merge_quickshell_colors() {
 
 patch_quickshell_background() {
 	echo "--- Patching QuickShell Background ---"
-	local qml_file="$HOME/.config/quickshell/ii/modules/ii/background/Background.qml"
-
-	if [ -f "$qml_file" ]; then
+	local shell_name qml_file patched=false
+	for shell_name in ii end4-pC; do
+		qml_file="$HOME/.config/quickshell/$shell_name/modules/ii/background/Background.qml"
+		if [ ! -f "$qml_file" ]; then
+			continue
+		fi
 		_log INFO "Found QuickShell Background.qml at '$qml_file'. Patching..."
 		sed -i 's#visible: opacity > 0 && !blurLoader.active#visible: false // opacity > 0 \&\& !blurLoader.active#g' "$qml_file"
 		sed -i 's#return CF.ColorUtils.mix(Appearance.colors.colLayer0, Appearance.colors.colPrimary, 0.75);#return "transparent"; // Original mix code removed#g' "$qml_file"
+		patched=true
+	done
+	if [ "$patched" = true ]; then
 		_log SUCCESS "Successfully patched QuickShell Background.qml."
 	else
-		_log WARN "QuickShell Background.qml not found at '$qml_file'. Skipping patch."
+		_log WARN "QuickShell Background.qml not found (checked ii, end4-pC). Skipping patch."
+	fi
+	echo "------------------------------------"
+}
+
+ensure_end4_shell() {
+	echo "--- Ensuring end4-pC QuickShell ---"
+	local shell_dir="$HOME/.config/quickshell/end4-pC"
+	local shell_repo="https://github.com/pctrade/end4-pC"
+
+	if [ ! -f "$shell_dir/shell.qml" ]; then
+		_log INFO "end4-pC shell not found. Installing..."
+		mkdir -p "$(dirname "$shell_dir")"
+		if git clone "$shell_repo" "$shell_dir"; then
+			_log SUCCESS "end4-pC shell installed."
+		else
+			_log ERROR "Failed to clone end4-pC shell."
+		fi
+	elif [ -d "$shell_dir/.git" ]; then
+		_log INFO "end4-pC shell found. Updating..."
+		if git -C "$shell_dir" pull --ff-only; then
+			_log SUCCESS "end4-pC shell updated."
+		else
+			_log WARN "Could not fast-forward end4-pC shell (local changes?). Skipping."
+		fi
+	else
+		_log WARN "end4-pC directory exists but is not a git repo. Skipping update."
 	fi
 	echo "------------------------------------"
 }

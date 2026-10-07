@@ -1,6 +1,7 @@
 scripts/rclone/*.log
 logs
 config.json
+!dots/base/home/config/illogical-impulse/config.json
 __pycache__/
 dots-custom
 tui/tui-app

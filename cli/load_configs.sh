@@ -282,6 +282,12 @@ main() {
 		_log INFO "Skipping QuickShell color merge based on config.json setting."
 	fi
 
+	if [[ "$(get_config_bool 'ensure_end4_shell' 'true')" == "true" ]]; then
+		ensure_end4_shell
+	else
+		_log INFO "Skipping end4-pC shell ensure based on config.json setting."
+	fi
+
 	_log INFO "Reloading Hyprland configuration..."
 	hyprctl reload 2>/dev/null || _log WARN "Hyprland is not running. Skipping reload."
 	bash "$REPO_DIR/cli/utils/force_reload_quickshell.sh" || _log WARN "Failed to force reload QuickShell."

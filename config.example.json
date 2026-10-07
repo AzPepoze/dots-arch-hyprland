@@ -1,5 +1,6 @@
 {
 	"model": "pc",
 	"remove_end4_background": true,
+	"ensure_end4_shell": true,
 	"replace_end4_color_to_catpuccin": true
 }
