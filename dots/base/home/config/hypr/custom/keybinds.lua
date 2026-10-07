@@ -31,6 +31,7 @@ hl.bind("SUPER + Print", hl.dsp.exec_cmd("mkdir -p $(xdg-user-dir PICTURES)/Scre
 -------------------------------------------------------
 hl.bind("SUPER + SHIFT + W", hl.dsp.exec_cmd(archSetupScripts .. "/hypr/keybinds/toggle_bar_autohide.sh"), { description = "Shell: Toggle bar auto-hide" })
 hl.bind("SUPER + escape", hl.dsp.global("quickshell:settingsToggle"), { description = "Toggle settings" })
+hl.bind("SUPER + G", hl.dsp.exec_cmd("$HOME/.config/hypr/custom/scripts/game-mode.sh"), { description = "Shell: Toggle game mode" })
 
 -------------------------------------------------------
 -- System / Keyboard

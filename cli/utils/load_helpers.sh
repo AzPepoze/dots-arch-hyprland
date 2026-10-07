@@ -200,10 +200,15 @@ ensure_end4_shell() {
 		fi
 	elif [ -d "$shell_dir/.git" ]; then
 		_log INFO "end4-pC shell found. Updating..."
+		# Local tweaks (bg removal, game-mode toggle wiring) travel via stash.
+		git -C "$shell_dir" stash push -qm "local tweaks" || true
 		if git -C "$shell_dir" pull --ff-only; then
 			_log SUCCESS "end4-pC shell updated."
 		else
-			_log WARN "Could not fast-forward end4-pC shell (local changes?). Skipping."
+			_log WARN "Could not fast-forward end4-pC shell. Skipping."
+		fi
+		if ! git -C "$shell_dir" stash pop -q; then
+			_log WARN "Could not restore local shell tweaks (conflict?). Check git status in $shell_dir."
 		fi
 	else
 		_log WARN "end4-pC directory exists but is not a git repo. Skipping update."
