@@ -276,7 +276,7 @@
             },
             "visualizer": {
                 "colorSource": "theme",
-                "enable": true,
+                "enable": false,
                 "height": 260,
                 "placementStrategy": "free",
                 "ringSize": 344,
@@ -733,7 +733,7 @@
         "sloppy": false
     },
     "settings": {
-        "animationSpeed": 1,
+        "animationSpeed": 1.5,
         "borderColor": "layer0Border",
         "borderSize": 1,
         "collapsedSections": [
