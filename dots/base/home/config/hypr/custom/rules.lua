@@ -1,5 +1,10 @@
 -- Custom Window Rules
 
+-- Frosted settings window: opt out of the global no_blur default + lower
+-- opacity so compositor blur shows through
+hl.window_rule({ match = { title = "^(illogical-impulse Settings)$" }, no_blur = false })
+hl.window_rule({ match = { title = "^(illogical-impulse Settings)$" }, opacity = "0.85 0.85 1.0" })
+
 hl.window_rule({match = {class = "^(kitty)$"}, opacity = "0.80 0.80 1.0", no_blur = false})
 hl.window_rule({match = {class = "(?i)^(tabby)$"}, no_blur = false})
 hl.window_rule({match = {class = "^(org.kde.dolphin)$"}, opacity = "0.80 0.80 1.0", no_blur = false})
