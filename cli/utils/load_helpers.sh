@@ -169,7 +169,11 @@ patch_quickshell_background() {
 			continue
 		fi
 		_log INFO "Found QuickShell Background.qml at '$qml_file'. Patching..."
+		# ii pattern
 		sed -i 's#visible: opacity > 0 && !blurLoader.active#visible: false // opacity > 0 \&\& !blurLoader.active#g' "$qml_file"
+		# end4-pC patterns (prepend false && to keep multi-line bindings valid)
+		sed -i 's#visible: !blurLoader.active#visible: false \&\& !blurLoader.active#g' "$qml_file"
+		sed -i 's#visible: !bgRoot.videoRevealed#visible: false \&\& !bgRoot.videoRevealed#g' "$qml_file"
 		sed -i 's#return CF.ColorUtils.mix(Appearance.colors.colLayer0, Appearance.colors.colPrimary, 0.75);#return "transparent"; // Original mix code removed#g' "$qml_file"
 		patched=true
 	done
