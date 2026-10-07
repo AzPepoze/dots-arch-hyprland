@@ -49,6 +49,26 @@ bash main.sh
 
 Then select either **Update** or **Update (Full)**.
 
+## 🐚 Quickshell (end4-pC fork)
+
+The default shell is [end4-pC](https://github.com/pctrade/end4-pC) (`qsConfig=end4-pC`
+in `dots/base/home/config/hypr/custom/variables.lua`, toggle settings with
+`SUPER + escape`). Both install and update auto-detect it via `ensure_end4_shell`
+in `cli/utils/load_helpers.sh`: missing → cloned, present → `git pull --ff-only`.
+Disable with `"ensure_end4_shell": false` in `config.json`.
+
+-    **Widget config:** the live `~/.config/illogical-impulse/config.json` (bar/topbar,
+     widgets, theme) is saved at `dots/base/home/config/illogical-impulse/` and
+     deployed like any other dotfile. After tweaking widgets, copy it back and commit.
+-    **Wallpaper:** `remove_end4_background` strips the shell-painted wallpaper on
+     both `ii` and `end4-pC` so a video wallpaper behind shows through. Tracked
+     wallpaper paths are pinned by `dots/base/home/config/hypr/custom/scripts/pin-ii-config.py`
+     (`save` / `restore` / `diff`).
+-    **Thai layout:** `us,th` plus Shift+Alt switching lives in `custom/general.lua`
+     and `custom/keybinds.lua`. The shell must not override Hyprland input settings,
+     so keep `require("hyprland.shellOverrides.main")` commented out in
+     `~/.config/hypr/hyprland.lua` (that file is upstream-owned; updates may re-enable it).
+
 ## 🎨 Customization
 
 To override default configurations, create a `dots-custom` directory. Files inside `dots-custom` will overwrite the corresponding files in the `dots` directory if they have the same path.
