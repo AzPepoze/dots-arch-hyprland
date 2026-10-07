@@ -220,6 +220,7 @@ main() {
 	done
 
 	update_dots_hyprland
+	disable_shell_overrides
 
 	if [ "$skip_gpu" = false ]; then
 		local gpu_lua_file="$HOME/.config/hypr/gpu.lua"
@@ -251,6 +252,19 @@ main() {
 		fi
 	fi
 
+	# Pipeline order: end-4 framework -> end4-pC shell -> remove bg -> apply configs.
+	if [[ "$(get_config_bool 'ensure_end4_shell' 'true')" == "true" ]]; then
+		ensure_end4_shell
+	else
+		_log INFO "Skipping end4-pC shell ensure based on config.json setting."
+	fi
+
+	if [[ "$(get_config_bool 'remove_end4_background' 'true')" == "true" ]]; then
+		patch_quickshell_background
+	else
+		_log INFO "Skipping QuickShell background patch based on config.json setting."
+	fi
+
 	local USER_MODEL
 	USER_MODEL=$(get_user_model)
 	_log INFO "User model detected: $USER_MODEL"
@@ -270,22 +284,10 @@ main() {
 		fi
 	fi
 
-	if [[ "$(get_config_bool 'remove_end4_background' 'true')" == "true" ]]; then
-		patch_quickshell_background
-	else
-		_log INFO "Skipping QuickShell background patch based on config.json setting."
-	fi
-
 	if [[ "$(get_config_bool 'replace_end4_color_to_catpuccin' 'true')" == "true" ]]; then
 		merge_quickshell_colors
 	else
 		_log INFO "Skipping QuickShell color merge based on config.json setting."
-	fi
-
-	if [[ "$(get_config_bool 'ensure_end4_shell' 'true')" == "true" ]]; then
-		ensure_end4_shell
-	else
-		_log INFO "Skipping end4-pC shell ensure based on config.json setting."
 	fi
 
 	_log INFO "Reloading Hyprland configuration..."

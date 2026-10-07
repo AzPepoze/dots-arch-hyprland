@@ -236,3 +236,21 @@ get_config_bool() {
 		echo "$value"
 	fi
 }
+
+disable_shell_overrides() {
+	echo "--- Disabling shell Hyprland overrides ---"
+	local hyprland_lua="$HOME/.config/hypr/hyprland.lua"
+	if [ ! -f "$hyprland_lua" ]; then
+		_log WARN "hyprland.lua not found. Skipping."
+		return
+	fi
+	# dots-hyprland updates re-enable this require; the shell must stay out
+	# of Hyprland settings (custom/general.lua owns kb_layout, blur, ...).
+	if grep -q '^require("hyprland.shellOverrides.main")' "$hyprland_lua"; then
+		sed -i 's#^require("hyprland.shellOverrides.main")#-- require("hyprland.shellOverrides.main") -- disabled: shell must not override Hyprland settings#' "$hyprland_lua"
+		_log SUCCESS "Shell overrides disabled."
+	else
+		_log INFO "Shell overrides already disabled. Skipping."
+	fi
+	echo "------------------------------------"
+}
