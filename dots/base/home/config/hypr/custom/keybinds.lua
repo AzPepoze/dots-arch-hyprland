@@ -30,6 +30,7 @@ hl.bind("SUPER + Print", hl.dsp.exec_cmd("mkdir -p $(xdg-user-dir PICTURES)/Scre
 -- Shell / Bar
 -------------------------------------------------------
 hl.bind("SUPER + SHIFT + W", hl.dsp.exec_cmd(archSetupScripts .. "/hypr/keybinds/toggle_bar_autohide.sh"), { description = "Shell: Toggle bar auto-hide" })
+hl.bind("SUPER + escape", hl.dsp.global("quickshell:settingsToggle"), { description = "Toggle settings" })
 
 -------------------------------------------------------
 -- System / Keyboard
