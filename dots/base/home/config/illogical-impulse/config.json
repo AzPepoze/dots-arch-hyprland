@@ -281,7 +281,7 @@
                 "placementStrategy": "free",
                 "ringSize": 344,
                 "sensitivity": 1,
-                "style": "aurora",
+                "style": "bars",
                 "x": 0,
                 "y": 820,
                 "z": -1000
