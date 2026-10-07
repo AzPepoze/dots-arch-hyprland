@@ -185,6 +185,51 @@ patch_quickshell_background() {
 	echo "------------------------------------"
 }
 
+patch_quickshell_conflict_killer() {
+	echo "--- Patching QuickShell ConflictKiller (keep kded6 alive) ---"
+	local shell_name qml_file patched=false
+	for shell_name in ii end4-pC; do
+		qml_file="$HOME/.config/quickshell/$shell_name/services/ConflictKiller.qml"
+		if [ ! -f "$qml_file" ]; then
+			continue
+		fi
+		if ! grep -q 'pidof kded6' "$qml_file"; then
+			_log INFO "ConflictKiller.qml in '$shell_name' already patched (or upstream changed). Skipping."
+			continue
+		fi
+		_log INFO "Found QuickShell ConflictKiller.qml at '$qml_file'. Patching..."
+		# kded6 hosts bluedevil (the BlueZ agent); killing it on every shell
+		# restart powers down hci0 and drops the active Bluetooth audio
+		# transport. Keep notification-daemon handling, drop the kded6 kill.
+		awk '
+			NR == 1 { skip = 0 }
+			skip > 0 { skip--; next }
+			/pidof kded6/ {
+				print "        // NOTE: kded6 is deliberately NOT killed here. It hosts bluedevil"
+				print "        // (the BlueZ agent); killing it on every shell restart powers down"
+				print "        // hci0 and drops the active Bluetooth audio transport."
+				print "        command: [\"bash\", \"-c\", `echo \"$(pidof mako dunst)\"`]"
+				next
+			}
+			/const output = this\.text;/ { next }
+			/const conflictingTrays =/ { next }
+			/conflictingNotifications = output\.split/ {
+				print "                const conflictingNotifications = this.text.trim().length > 0;"
+				next
+			}
+			/if \(conflictingTrays\) \{/ { skip = 3; next }
+			{ print }
+		' "$qml_file" > "$qml_file.patched" && mv "$qml_file.patched" "$qml_file"
+		patched=true
+	done
+	if [ "$patched" = true ]; then
+		_log SUCCESS "Successfully patched QuickShell ConflictKiller.qml."
+	else
+		_log INFO "QuickShell ConflictKiller.qml needed no changes."
+	fi
+	echo "------------------------------------"
+}
+
 ensure_end4_shell() {
 	echo "--- Ensuring end4-pC QuickShell ---"
 	local shell_dir="$HOME/.config/quickshell/end4-pC"

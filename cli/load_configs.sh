@@ -265,6 +265,12 @@ main() {
 		_log INFO "Skipping QuickShell background patch based on config.json setting."
 	fi
 
+	if [[ "$(get_config_bool 'keep_quickshell_kded6' 'true')" == "true" ]]; then
+		patch_quickshell_conflict_killer
+	else
+		_log INFO "Skipping QuickShell ConflictKiller patch based on config.json setting."
+	fi
+
 	local USER_MODEL
 	USER_MODEL=$(get_user_model)
 	_log INFO "User model detected: $USER_MODEL"
