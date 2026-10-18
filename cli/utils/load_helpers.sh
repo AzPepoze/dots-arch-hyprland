@@ -252,8 +252,10 @@ patch_quickshell_gamemode() {
 		if [ ! -f "$qml_file" ]; then
 			continue
 		fi
-		if grep -q 'custom/scripts/game-mode.sh' "$qml_file"; then
-			_log INFO "'$shell_name' GameModeToggle already wired to game-mode.sh. Skipping."
+		# Compare against the canonical file rather than grepping for a marker:
+		# a stash-pop conflict (or any upstream rewrite) must still be replaced.
+		if cmp -s "$asset" "$qml_file"; then
+			_log INFO "'$shell_name' GameModeToggle already wired. Skipping."
 			continue
 		fi
 		_log INFO "Patching '$shell_name' GameModeToggle.qml..."
