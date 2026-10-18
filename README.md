@@ -55,7 +55,9 @@ The default shell is [end4-pC](https://github.com/pctrade/end4-pC) (`qsConfig=en
 in `dots/base/home/config/hypr/custom/variables.lua`, toggle settings with
 `SUPER + escape`). Both install and update auto-detect it via `ensure_end4_shell`
 in `cli/utils/load_helpers.sh`: missing → cloned, present → `git pull --ff-only`.
-Disable with `"ensure_end4_shell": false` in `config.json`.
+Disable with `"ensure_end4_shell": false` in `config.json`. Upstream `exp-update`
+replaces all of `~/.config/quickshell/`, so `update_dots_hyprland` backs up and
+restores `end4-pC` around it to avoid a needless re-clone each update.
 
 -    **Widget config:** the live `~/.config/illogical-impulse/config.json` (bar/topbar,
      widgets, theme) is saved at `dots/base/home/config/illogical-impulse/` and
@@ -64,6 +66,12 @@ Disable with `"ensure_end4_shell": false` in `config.json`.
      both `ii` and `end4-pC` so a video wallpaper behind shows through. Tracked
      wallpaper paths are pinned by `dots/base/home/config/hypr/custom/scripts/pin-ii-config.py`
      (`save` / `restore` / `diff`).
+-    **Game mode:** the quick-menu toggle is wired to
+     `~/.config/hypr/custom/scripts/game-mode.sh` (not `HyprlandConfig`, which only
+     writes the unsourced `shellOverrides/main.lua`). Because that wiring lives in the
+     upstream-owned shell, `patch_quickshell_gamemode` re-applies it from
+     `cli/assets/quickshell/GameModeToggle.qml` on every config load (both `ii` and
+     `end4-pC`). Disable with `"patch_quickshell_gamemode": false` in `config.json`.
 -    **Thai layout:** `us,th` plus Shift+Alt switching lives in `custom/general.lua`
      and `custom/keybinds.lua`. The shell must not override Hyprland input settings,
      so keep `require("hyprland.shellOverrides.main")` commented out in

@@ -105,6 +105,19 @@ update_dots_hyprland() {
 		_log WARN "Warning: '$monitor_config_path' not found. Nothing to back up."
 	fi
 
+	# Upstream exp-update replaces all of ~/.config/quickshell, which wipes the
+	# separately installed end4-pC shell. Preserve it so ensure_end4_shell pulls
+	# instead of re-cloning from scratch.
+	local shell_dir="$HOME/.config/quickshell/end4-pC"
+	local backup_shell_dir="$temp_dir/end4-pC"
+	local has_shell_backup=false
+
+	if [ -f "$shell_dir/shell.qml" ]; then
+		_log INFO "Backing up end4-pC shell..."
+		cp -r "$shell_dir" "$backup_shell_dir"
+		has_shell_backup=true
+	fi
+
 	if [ ! -d "$HOME/dots-hyprland" ]; then
 		_log WARN "dots-hyprland directory not found. Skipping dots-hyprland update."
 		rm -rf "$temp_dir"
@@ -191,6 +204,13 @@ END_OF_EXPECT
 		cp "$backup_monitor_config_path" "$monitor_config_path"
 	fi
 
+	if [ "$has_shell_backup" = true ]; then
+		_log INFO "Restoring end4-pC shell wiped by upstream update..."
+		rm -rf "$shell_dir"
+		mkdir -p "$(dirname "$shell_dir")"
+		cp -r "$backup_shell_dir" "$shell_dir"
+	fi
+
 	rm -rf "$temp_dir"
 }
 
@@ -269,6 +289,12 @@ main() {
 		patch_quickshell_conflict_killer
 	else
 		_log INFO "Skipping QuickShell ConflictKiller patch based on config.json setting."
+	fi
+
+	if [[ "$(get_config_bool 'patch_quickshell_gamemode' 'true')" == "true" ]]; then
+		patch_quickshell_gamemode
+	else
+		_log INFO "Skipping QuickShell GameModeToggle patch based on config.json setting."
 	fi
 
 	local USER_MODEL

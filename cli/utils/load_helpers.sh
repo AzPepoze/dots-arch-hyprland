@@ -230,6 +230,44 @@ patch_quickshell_conflict_killer() {
 	echo "------------------------------------"
 }
 
+patch_quickshell_gamemode() {
+	echo "--- Patching QuickShell GameModeToggle (game-mode script wiring) ---"
+	# The stock toggle calls HyprlandConfig, which only rewrites
+	# shellOverrides/main.lua. This setup uses a Lua Hyprland config and
+	# deliberately does not source shellOverrides, so that does nothing.
+	# Point the toggle at game-mode.sh (hyprctl eval + shell transparency/
+	# widgets) instead, and refresh the toggle state after it runs.
+	#
+	# This lives as an explicit deploy patch (not just a local git tweak in
+	# the shell repo) so a shell update / stash-pop conflict can never
+	# silently drop the fix: it is re-applied on every `load_configs.sh` run.
+	local asset="$REPO_DIR/cli/assets/quickshell/GameModeToggle.qml"
+	if [ ! -f "$asset" ]; then
+		_log WARN "GameModeToggle asset not found at '$asset'. Skipping patch."
+		return
+	fi
+	local shell_name qml_file patched=false
+	for shell_name in ii end4-pC; do
+		qml_file="$HOME/.config/quickshell/$shell_name/modules/common/models/quickToggles/GameModeToggle.qml"
+		if [ ! -f "$qml_file" ]; then
+			continue
+		fi
+		if grep -q 'custom/scripts/game-mode.sh' "$qml_file"; then
+			_log INFO "'$shell_name' GameModeToggle already wired to game-mode.sh. Skipping."
+			continue
+		fi
+		_log INFO "Patching '$shell_name' GameModeToggle.qml..."
+		cp "$asset" "$qml_file"
+		patched=true
+	done
+	if [ "$patched" = true ]; then
+		_log SUCCESS "Successfully patched QuickShell GameModeToggle.qml."
+	else
+		_log INFO "QuickShell GameModeToggle.qml needed no changes."
+	fi
+	echo "------------------------------------"
+}
+
 ensure_end4_shell() {
 	echo "--- Ensuring end4-pC QuickShell ---"
 	local shell_dir="$HOME/.config/quickshell/end4-pC"
