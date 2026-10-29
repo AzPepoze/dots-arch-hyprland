@@ -5,6 +5,23 @@ local mod = "ALT"
 local archSetupScripts = "$HOME/dots-arch-hyprland/scripts"
 
 -------------------------------------------------------
+-- Release Guard
+-------------------------------------------------------
+-- Any Super+key cancels the "Super alone" overview toggle on release.
+-- Non-consuming, so the key's own bind still runs.
+local release_interrupt = hl.dsp.global("quickshell:searchToggleReleaseInterrupt")
+local guarded_keys = {}
+for code = string.byte("A"), string.byte("Z") do
+    table.insert(guarded_keys, string.char(code))
+end
+for code = string.byte("0"), string.byte("9") do
+    table.insert(guarded_keys, string.char(code))
+end
+for _, key in ipairs(guarded_keys) do
+    hl.bind("SUPER + " .. key, release_interrupt, { non_consuming = true })
+end
+
+-------------------------------------------------------
 -- App Launcher
 -------------------------------------------------------
 hl.bind("SUPER + A", hl.dsp.exec_cmd("pgrep -x rofi && killall rofi || rofi -show drun"), { description = "App: Rofi Launcher" })
