@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# Stops Super+<key> from closing panels on Super release.
-# Removes the searchToggleRelease onReleased handler, so a bare Super press
-# no longer toggles the overview. Also sets superReleaseMightTrigger = false
-# in the panel shortcuts. Safe to run more than once.
+# Stops Super+<key> panel toggles from closing the panel on Super release.
+# Sets superReleaseMightTrigger = false in the panel shortcuts of Overview.qml.
+# Safe to run more than once.
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$DIR/../.."
@@ -38,27 +37,10 @@ if [ ! -f "$OVERVIEW_FILE" ]; then
     exit 0
 fi
 
-# Deletes the onReleased handler of the searchToggleRelease shortcut.
-remove_release_toggle() {
-    local tmp_file="$OVERVIEW_FILE.tmp"
-
-    awk '
-        index($0, "name: \"searchToggleRelease\"") { in_block = 1 }
-        /^    }$/ { in_block = 0 }
-        in_block && /onReleased: \{/ { skipping = 1 }
-        skipping {
-            if ($0 ~ /^        }$/) skipping = 0
-            next
-        }
-        { print }
-    ' "$OVERVIEW_FILE" > "$tmp_file" && mv "$tmp_file" "$OVERVIEW_FILE"
-}
-
 before=$(md5sum < "$OVERVIEW_FILE")
 for name in "${PANEL_SHORTCUTS[@]}"; do
     add_flag_to_shortcut "$name"
 done
-remove_release_toggle
 
 if [ "$before" == "$(md5sum < "$OVERVIEW_FILE")" ]; then
     _log INFO "Overview.qml already patched."
