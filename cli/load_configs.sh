@@ -297,6 +297,12 @@ main() {
 		_log INFO "Skipping QuickShell GameModeToggle patch based on config.json setting."
 	fi
 
+	if [[ "$(get_config_bool 'patch_quickshell_overview_super_release' 'true')" == "true" ]]; then
+		patch_quickshell_overview_super_release
+	else
+		_log INFO "Skipping QuickShell Overview super-release patch based on config.json setting."
+	fi
+
 	local USER_MODEL
 	USER_MODEL=$(get_user_model)
 	_log INFO "User model detected: $USER_MODEL"

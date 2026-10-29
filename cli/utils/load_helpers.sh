@@ -270,6 +270,12 @@ patch_quickshell_gamemode() {
 	echo "------------------------------------"
 }
 
+patch_quickshell_overview_super_release() {
+	echo "--- Patching QuickShell Overview (keep panels open on Super release) ---"
+	bash "$REPO_DIR/scripts/patches/overview_super_release.sh"
+	echo "------------------------------------"
+}
+
 ensure_end4_shell() {
 	echo "--- Ensuring end4-pC QuickShell ---"
 	local shell_dir="$HOME/.config/quickshell/end4-pC"

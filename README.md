@@ -72,6 +72,10 @@ restores `end4-pC` around it to avoid a needless re-clone each update.
      upstream-owned shell, `patch_quickshell_gamemode` re-applies it from
      `cli/assets/quickshell/GameModeToggle.qml` on every config load (both `ii` and
      `end4-pC`). Disable with `"patch_quickshell_gamemode": false` in `config.json`.
+-    **Super+V panels:** `patch_quickshell_overview_super_release` runs
+     `scripts/patches/overview_super_release.sh` on every config load. It keeps the
+     clipboard, emoji and overview panels open when Super is released. Disable with
+     `"patch_quickshell_overview_super_release": false` in `config.json`.
 -    **Thai layout:** `us,th` plus Shift+Alt switching lives in `custom/general.lua`
      and `custom/keybinds.lua`. The shell must not override Hyprland input settings,
      so keep `require("hyprland.shellOverrides.main")` commented out in

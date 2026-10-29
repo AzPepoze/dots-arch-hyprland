@@ -4,5 +4,6 @@
 	"ensure_end4_shell": true,
 	"replace_end4_color_to_catpuccin": true,
 	"keep_quickshell_kded6": true,
-	"patch_quickshell_gamemode": true
+	"patch_quickshell_gamemode": true,
+	"patch_quickshell_overview_super_release": true
 }
