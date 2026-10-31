@@ -12,6 +12,9 @@ hl.config({
         inactive_opacity = 1.0,
         active_opacity = 1.0,
         dim_special = 0.2,
+        shadow = {
+            render_power = 4
+        },
         blur = {
             enabled = true,
             special = true,
