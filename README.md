@@ -76,6 +76,10 @@ restores `end4-pC` around it to avoid a needless re-clone each update.
      `scripts/patches/overview_super_release.sh` on every config load. It keeps the
      clipboard, emoji and overview panels open when Super is released. Disable with
      `"patch_quickshell_overview_super_release": false` in `config.json`.
+-    **Hyprland shadow:** `patch_hypr_shadow_render_power` sets `render_power` to `4` in
+     the upstream `~/.config/hypr/hyprland/general.lua`. Upstream ships `10`, which
+     Hyprland rejects (max is 4). Disable with `"patch_hypr_shadow_render_power": false`
+     in `config.json`.
 -    **Thai layout:** `us,th` plus Shift+Alt switching lives in `custom/general.lua`
      and `custom/keybinds.lua`. The shell must not override Hyprland input settings,
      so keep `require("hyprland.shellOverrides.main")` commented out in

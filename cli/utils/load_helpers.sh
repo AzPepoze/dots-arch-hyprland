@@ -276,6 +276,22 @@ patch_quickshell_overview_super_release() {
 	echo "------------------------------------"
 }
 
+patch_hypr_shadow_render_power() {
+	echo "--- Patching Hyprland shadow render_power (max is 4) ---"
+	# Upstream ships 10, which makes Hyprland throw on load and skip the
+	# rest of the config. The file is upstream-owned, so re-apply on every run.
+	local hypr_general="$HOME/.config/hypr/hyprland/general.lua"
+	if [ ! -f "$hypr_general" ]; then
+		_log WARN "Hyprland general.lua not found at '$hypr_general'. Skipping."
+	elif grep -q 'render_power = 10,' "$hypr_general"; then
+		sed -i 's/render_power = 10,/render_power = 4,/' "$hypr_general"
+		_log SUCCESS "Set shadow render_power to 4."
+	else
+		_log INFO "Shadow render_power already valid. Skipping."
+	fi
+	echo "------------------------------------"
+}
+
 ensure_end4_shell() {
 	echo "--- Ensuring end4-pC QuickShell ---"
 	local shell_dir="$HOME/.config/quickshell/end4-pC"

@@ -303,6 +303,12 @@ main() {
 		_log INFO "Skipping QuickShell Overview super-release patch based on config.json setting."
 	fi
 
+	if [[ "$(get_config_bool 'patch_hypr_shadow_render_power' 'true')" == "true" ]]; then
+		patch_hypr_shadow_render_power
+	else
+		_log INFO "Skipping Hyprland shadow render_power patch based on config.json setting."
+	fi
+
 	local USER_MODEL
 	USER_MODEL=$(get_user_model)
 	_log INFO "User model detected: $USER_MODEL"
