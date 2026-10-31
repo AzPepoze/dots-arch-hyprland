@@ -56,15 +56,14 @@ type MenuModel struct {
 	cursor     int
 	mainOpts   []MenuOption
 	utilOpts   []MenuOption
-	waitingMsg string
 	nextState  MenuState
+	processErr error
 }
 
 func NewMenuModel(repoDir string) MenuModel {
 	return MenuModel{
 		repoDir: repoDir,
 		state:   StateMainMenu,
-		cursor:  0,
 		mainOpts: []MenuOption{
 			{Text: "Run Package Installer", Action: actionInstall},
 			{Text: "Open Configuration Editor", Action: actionConfig},
@@ -106,7 +105,10 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case processFinishedMsg:
 		m.state = StateWaitingKey
-		m.waitingMsg = "Process finished. Press Enter to return to the menu..."
+		m.processErr = msg.err
+		if msg.err != nil {
+			logger.Error("menu", "Process failed: %v", msg.err)
+		}
 		return m, nil
 	case tea.KeyMsg:
 		if m.state == StateWaitingKey {
@@ -208,6 +210,7 @@ func (m MenuModel) runScript(next MenuState, opt MenuOption) (tea.Model, tea.Cmd
 
 func (m MenuModel) run(next MenuState, c *exec.Cmd) (tea.Model, tea.Cmd) {
 	m.nextState = next
+	m.processErr = nil
 	return m, tea.ExecProcess(c, func(err error) tea.Msg {
 		return processFinishedMsg{err}
 	})
@@ -215,7 +218,11 @@ func (m MenuModel) run(next MenuState, c *exec.Cmd) (tea.Model, tea.Cmd) {
 
 func (m MenuModel) View() string {
 	if m.state == StateWaitingKey {
-		return lipgloss.NewStyle().Foreground(lipgloss.Color("#98C379")).Bold(true).Render("\n" + m.waitingMsg + "\n")
+		message := "Process finished. Press Enter to return to the menu..."
+		if m.processErr != nil {
+			message = fmt.Sprintf("Process failed: %v. Press Enter to return to the menu...", m.processErr)
+		}
+		return lipgloss.NewStyle().Foreground(lipgloss.Color("#98C379")).Bold(true).Render("\n" + message + "\n")
 	}
 
 	var lines []string

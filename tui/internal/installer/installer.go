@@ -24,7 +24,6 @@ type InstallerModel struct {
 	activeBox    int
 	cursors      []int
 	width        int
-	height       int
 	finished     bool
 	selectedCmd  []string
 	stage        InstallerStage
@@ -55,12 +54,11 @@ func NewInstallerModel(repoDir string) InstallerModel {
 	cursors := make([]int, len(boxes))
 
 	return InstallerModel{
-		repoDir:   repoDir,
-		boxes:     boxes,
-		activeBox: 0,
-		cursors:   cursors,
-		width:     90,
-		stage:     StageSetupWizard,
+		repoDir: repoDir,
+		boxes:   boxes,
+		cursors: cursors,
+		width:   90,
+		stage:   StageSetupWizard,
 	}
 }
 
@@ -169,7 +167,6 @@ func (m InstallerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
-		m.height = msg.Height
 	}
 
 	return m, nil

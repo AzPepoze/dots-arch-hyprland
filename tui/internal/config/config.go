@@ -22,16 +22,13 @@ type AppConfig struct {
 }
 
 type ConfigModel struct {
-	repoDir    string
 	configPath string
 	config     AppConfig
 	cursor     int
 	models     []string
 	modelIdx   int
 	width      int
-	height     int
 	saved      bool
-	quitted    bool
 }
 
 func NewConfigModel(repoDir string) ConfigModel {
@@ -73,12 +70,10 @@ func NewConfigModel(repoDir string) ConfigModel {
 	}
 
 	return ConfigModel{
-		repoDir:    repoDir,
 		configPath: configPath,
 		config:     cfg,
 		models:     modelOpts,
 		modelIdx:   modelIdx,
-		cursor:     0,
 		width:      80,
 	}
 }
@@ -92,7 +87,6 @@ func (m ConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "q", "ctrl+c", "esc":
-			m.quitted = true
 			return m, tea.Quit
 		case "up", "k":
 			if m.cursor > 0 {
@@ -129,13 +123,11 @@ func (m ConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.saved = true
 				return m, tea.Quit
 			case 4:
-				m.quitted = true
 				return m, tea.Quit
 			}
 		}
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
-		m.height = msg.Height
 	}
 	return m, nil
 }
