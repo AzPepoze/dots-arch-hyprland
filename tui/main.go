@@ -11,34 +11,32 @@ import (
 	"tui/internal/menu"
 )
 
-func findRepoDir() (string, error) {
-	dir, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
+func walkUpForConfig(start string) (string, bool) {
+	dir := start
 	for {
 		if _, err := os.Stat(filepath.Join(dir, "config.json")); err == nil {
-			return dir, nil
+			return dir, true
 		}
 		parent := filepath.Dir(dir)
 		if parent == dir {
-			break
+			return "", false
 		}
 		dir = parent
 	}
+}
 
-	execPath, err := os.Executable()
-	if err == nil {
-		dir = filepath.Dir(execPath)
-		for {
-			if _, err := os.Stat(filepath.Join(dir, "config.json")); err == nil {
-				return dir, nil
-			}
-			parent := filepath.Dir(dir)
-			if parent == dir {
-				break
-			}
-			dir = parent
+func findRepoDir() (string, error) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	if repoDir, ok := walkUpForConfig(cwd); ok {
+		return repoDir, nil
+	}
+
+	if execPath, err := os.Executable(); err == nil {
+		if repoDir, ok := walkUpForConfig(filepath.Dir(execPath)); ok {
+			return repoDir, nil
 		}
 	}
 	return "", fmt.Errorf("could not find repo root directory containing config.json")
