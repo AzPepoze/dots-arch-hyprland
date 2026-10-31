@@ -10,6 +10,8 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	"tui/internal/logger"
 )
 
 type AppConfig struct {
@@ -230,7 +232,7 @@ func Run(repoDir string) error {
 			return err
 		}
 
-		fmt.Println("Configuration saved successfully! Reloading dotfiles...")
+		logger.Success("config", "Configuration saved successfully! Reloading dotfiles...")
 		loadConfigsScript := filepath.Join(repoDir, "cli", "load_configs.sh")
 		c := exec.Command("bash", loadConfigsScript, "--skip-gpu", "--skip-cursor")
 		c.Stdout = os.Stdout

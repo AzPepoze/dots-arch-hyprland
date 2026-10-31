@@ -8,6 +8,8 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	"tui/internal/logger"
 )
 
 type MenuState int
@@ -294,7 +296,7 @@ func Run(repoDir string) error {
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
 	_ = c.Run()
-	fmt.Println()
+	logger.Info("menu", "Starting main menu")
 
 	m := NewMenuModel(repoDir)
 	p := tea.NewProgram(m)

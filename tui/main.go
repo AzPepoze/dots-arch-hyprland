@@ -7,6 +7,7 @@ import (
 
 	"tui/internal/config"
 	"tui/internal/installer"
+	"tui/internal/logger"
 	"tui/internal/menu"
 )
 
@@ -51,27 +52,27 @@ func main() {
 
 	repoDir, err := findRepoDir()
 	if err != nil {
-		fmt.Printf("Error: %v\n", err)
+		logger.Error("main", "Error: %v", err)
 		os.Exit(1)
 	}
 	switch cmd {
 	case "menu":
 		if err := menu.Run(repoDir); err != nil {
-			fmt.Printf("Main Menu error: %v\n", err)
+			logger.Error("menu", "Main Menu error: %v", err)
 			os.Exit(1)
 		}
 	case "install":
 		if err := installer.Run(repoDir); err != nil {
-			fmt.Printf("Installer error: %v\n", err)
+			logger.Error("installer", "Installer error: %v", err)
 			os.Exit(1)
 		}
 	case "config":
 		if err := config.Run(repoDir); err != nil {
-			fmt.Printf("Config Editor error: %v\n", err)
+			logger.Error("config", "Config Editor error: %v", err)
 			os.Exit(1)
 		}
 	default:
-		fmt.Printf("Unknown command: %s. Usage: tui [menu|install|config]\n", cmd)
+		logger.Error("main", "Unknown command: %s. Usage: tui [menu|install|config]", cmd)
 		os.Exit(1)
 	}
 }
