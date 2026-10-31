@@ -103,7 +103,7 @@ load_v4l2loopback_module() {
 }
 
 load_configs() {
-    local config_script="./cli/load_configs.sh"
+    local config_script="$repo_dir/cli/load_configs.sh"
 
     if [ ! -f "$config_script" ]; then
         _log WARN "'$config_script' not found. Skipping config load."
@@ -135,7 +135,7 @@ update_flatpak
 update_bun_global_packages
 load_v4l2loopback_module
 load_configs
-bash ./cli/utils/cleanup.sh
+bash "$repo_dir/cli/utils/cleanup.sh"
 
 
 _log SUCCESS "Full system update and cleanup process has finished."
