@@ -155,10 +155,10 @@ func (m *InstallerModel) bulkSelect(key string) {
 	case "n":
 		m.setSelected(func(InstallItem) bool { return false })
 	case "e":
-		m.setSelected(func(item InstallItem) bool { return item.Type == "essential" })
+		m.setSelected(func(item InstallItem) bool { return item.Type == ItemTypeEssential })
 	case "o":
 		m.setSelected(func(item InstallItem) bool {
-			return item.Type == "essential" || item.Type == "essential_laptop"
+			return item.Type == ItemTypeEssential || item.Type == ItemTypeEssentialLaptop
 		})
 	}
 }
