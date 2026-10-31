@@ -20,10 +20,28 @@ const (
 	StateWaitingKey
 )
 
+type MenuAction int
+
+const (
+	actionNone MenuAction = iota
+	actionInstall
+	actionConfig
+	actionUtils
+	actionQuit
+	actionBack
+)
+
 type MenuOption struct {
 	Text     string
 	IsHeader bool
-	ActionID int
+	Action   MenuAction
+	Script   string
+	Args     []string
+	Sudo     bool
+}
+
+func scriptPath(repoDir, rel string) string {
+	return filepath.Join(repoDir, "cli", rel)
 }
 
 type processFinishedMsg struct {
@@ -46,34 +64,34 @@ func NewMenuModel(repoDir string) MenuModel {
 		state:   StateMainMenu,
 		cursor:  0,
 		mainOpts: []MenuOption{
-			{Text: "Run Package Installer", ActionID: 0},
-			{Text: "Open Configuration Editor", ActionID: 1},
-			{Text: "Load Dotfile Configurations", ActionID: 2},
-			{Text: "Update System (Normal)", ActionID: 3},
-			{Text: "Update System (Full)", ActionID: 4},
-			{Text: "Open Utility Tools Menu", ActionID: 5},
-			{Text: "Wi-Fi Stability Workarounds", ActionID: 7},
-			{Text: "Quit", ActionID: 6},
+			{Text: "Run Package Installer", Action: actionInstall},
+			{Text: "Open Configuration Editor", Action: actionConfig},
+			{Text: "Load Dotfile Configurations", Script: scriptPath(repoDir, "load_configs.sh")},
+			{Text: "Update System (Normal)", Script: filepath.Join(repoDir, "update.sh"), Args: []string{"--skip-cursor", "--skip-gpu"}},
+			{Text: "Update System (Full)", Script: filepath.Join(repoDir, "update.sh"), Args: []string{"--full"}},
+			{Text: "Open Utility Tools Menu", Action: actionUtils},
+			{Text: "Wi-Fi Stability Workarounds", Script: scriptPath(repoDir, "configs/wifi_stability.sh")},
+			{Text: "Quit", Action: actionQuit},
 		},
 		utilOpts: []MenuOption{
 			{Text: "--- Interactive Configurations ---", IsHeader: true},
-			{Text: "Configure Cursor Theme", ActionID: 0},
-			{Text: "Configure GPU Devices", ActionID: 1},
-			{Text: "Manage Drives (fstab auto-mount)", ActionID: 2},
-			{Text: "Select Boot Entry (Reboot)", ActionID: 3},
+			{Text: "Configure Cursor Theme", Script: scriptPath(repoDir, "configs/cursor.sh")},
+			{Text: "Configure GPU Devices", Script: scriptPath(repoDir, "configs/gpu.sh")},
+			{Text: "Manage Drives (fstab auto-mount)", Script: scriptPath(repoDir, "mount_drive_manager.sh")},
+			{Text: "Select Boot Entry (Reboot)", Script: scriptPath(repoDir, "boot_to.sh")},
 			{Text: "--- System Maintenance & Helpers ---", IsHeader: true},
-			{Text: "Run System Cleanup", ActionID: 4},
-			{Text: "Empty Trash Files", ActionID: 5},
-			{Text: "Rank Package Mirrors", ActionID: 6},
-			{Text: "Compile Cursor Themes (win2xcur)", ActionID: 7},
-			{Text: "Set Kitty as Default Terminal", ActionID: 8},
-			{Text: "Force Reload QuickShell", ActionID: 9},
-			{Text: "SSH Key Manager", ActionID: 14},
-			{Text: "Reset QuickShell Settings (Illogical Impulse)", ActionID: 13},
+			{Text: "Run System Cleanup", Script: scriptPath(repoDir, "utils/cleanup.sh")},
+			{Text: "Empty Trash Files", Script: scriptPath(repoDir, "utils/clear_trash.sh")},
+			{Text: "Rank Package Mirrors", Script: scriptPath(repoDir, "utils/rank_mirrors.sh")},
+			{Text: "Compile Cursor Themes (win2xcur)", Script: scriptPath(repoDir, "utils/build_cursors.sh")},
+			{Text: "Set Kitty as Default Terminal", Script: scriptPath(repoDir, "utils/set_kitty_main_terminal.sh")},
+			{Text: "Force Reload QuickShell", Script: scriptPath(repoDir, "utils/force_reload_quickshell.sh")},
+			{Text: "SSH Key Manager", Script: scriptPath(repoDir, "ssh_key_manager.sh")},
+			{Text: "Reset QuickShell Settings (Illogical Impulse)", Script: scriptPath(repoDir, "utils/reset_quickshell.sh")},
 			{Text: "--- Special Configurations & Fun ---", IsHeader: true},
-			{Text: "Enable/Disable SDDM Autologin", ActionID: 10},
-			{Text: "Amogus Sus Cowsay", ActionID: 11},
-			{Text: "Back to Main Menu", ActionID: 12},
+			{Text: "Enable/Disable SDDM Autologin", Script: scriptPath(repoDir, "configs/auto_login.sh"), Sudo: true},
+			{Text: "Amogus Sus Cowsay", Script: scriptPath(repoDir, "utils/amogus.sh")},
+			{Text: "Back to Main Menu", Action: actionBack},
 		},
 	}
 }
@@ -147,100 +165,51 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m MenuModel) handleMainSelect() (tea.Model, tea.Cmd) {
-	selected := m.mainOpts[m.cursor]
-	switch selected.ActionID {
-	case 0:
-		c := exec.Command(os.Args[0], "install")
-		m.nextState = StateMainMenu
-		return m, tea.ExecProcess(c, func(err error) tea.Msg {
-			return processFinishedMsg{err}
-		})
-	case 1:
-		c := exec.Command(os.Args[0], "config")
-		m.nextState = StateMainMenu
-		return m, tea.ExecProcess(c, func(err error) tea.Msg {
-			return processFinishedMsg{err}
-		})
-	case 2:
-		c := exec.Command("bash", filepath.Join(m.repoDir, "cli", "load_configs.sh"))
-		m.nextState = StateMainMenu
-		return m, tea.ExecProcess(c, func(err error) tea.Msg {
-			return processFinishedMsg{err}
-		})
-	case 3:
-		c := exec.Command("bash", filepath.Join(m.repoDir, "update.sh"), "--skip-cursor", "--skip-gpu")
-		m.nextState = StateMainMenu
-		return m, tea.ExecProcess(c, func(err error) tea.Msg {
-			return processFinishedMsg{err}
-		})
-	case 4:
-		c := exec.Command("bash", filepath.Join(m.repoDir, "update.sh"), "--full")
-		m.nextState = StateMainMenu
-		return m, tea.ExecProcess(c, func(err error) tea.Msg {
-			return processFinishedMsg{err}
-		})
-	case 5:
-		m.state = StateUtilsMenu
-		m.cursor = 1
-		return m, nil
-	case 6:
-		return m, tea.Quit
-	case 7:
-		c := exec.Command("bash", filepath.Join(m.repoDir, "cli", "configs", "wifi_stability.sh"))
-		m.nextState = StateMainMenu
-		return m, tea.ExecProcess(c, func(err error) tea.Msg {
-			return processFinishedMsg{err}
-		})
-	}
-	return m, nil
+	return m.selectOption(StateMainMenu, m.mainOpts[m.cursor])
 }
 
 func (m MenuModel) handleUtilsSelect() (tea.Model, tea.Cmd) {
-	selected := m.utilOpts[m.cursor]
-	var c *exec.Cmd
-	m.nextState = StateUtilsMenu
+	return m.selectOption(StateUtilsMenu, m.utilOpts[m.cursor])
+}
 
-	switch selected.ActionID {
-	case 0:
-		c = exec.Command("bash", filepath.Join(m.repoDir, "cli", "configs", "cursor.sh"))
-	case 1:
-		c = exec.Command("bash", filepath.Join(m.repoDir, "cli", "configs", "gpu.sh"))
-	case 2:
-		c = exec.Command("bash", filepath.Join(m.repoDir, "cli", "mount_drive_manager.sh"))
-	case 3:
-		c = exec.Command("bash", filepath.Join(m.repoDir, "cli", "boot_to.sh"))
-	case 4:
-		c = exec.Command("bash", filepath.Join(m.repoDir, "cli", "utils", "cleanup.sh"))
-	case 5:
-		c = exec.Command("bash", filepath.Join(m.repoDir, "cli", "utils", "clear_trash.sh"))
-	case 6:
-		c = exec.Command("bash", filepath.Join(m.repoDir, "cli", "utils", "rank_mirrors.sh"))
-	case 7:
-		c = exec.Command("bash", filepath.Join(m.repoDir, "cli", "utils", "build_cursors.sh"))
-	case 8:
-		c = exec.Command("bash", filepath.Join(m.repoDir, "cli", "utils", "set_kitty_main_terminal.sh"))
-	case 9:
-		c = exec.Command("bash", filepath.Join(m.repoDir, "cli", "utils", "force_reload_quickshell.sh"))
-	case 13:
-		c = exec.Command("bash", filepath.Join(m.repoDir, "cli", "utils", "reset_quickshell.sh"))
-	case 14:
-		c = exec.Command("bash", filepath.Join(m.repoDir, "cli", "ssh_key_manager.sh"))
-	case 10:
-		c = exec.Command("sudo", "bash", filepath.Join(m.repoDir, "cli", "configs", "auto_login.sh"))
-	case 11:
-		c = exec.Command("bash", filepath.Join(m.repoDir, "cli", "utils", "amogus.sh"))
-	case 12:
+func (m MenuModel) selectOption(next MenuState, opt MenuOption) (tea.Model, tea.Cmd) {
+	switch opt.Action {
+	case actionInstall:
+		return m.run(next, os.Args[0], "install")
+	case actionConfig:
+		return m.run(next, os.Args[0], "config")
+	case actionUtils:
+		m.state = StateUtilsMenu
+		m.cursor = 1
+		return m, nil
+	case actionQuit:
+		return m, tea.Quit
+	case actionBack:
 		m.state = StateMainMenu
 		m.cursor = 0
 		return m, nil
 	}
 
-	if c != nil {
-		return m, tea.ExecProcess(c, func(err error) tea.Msg {
-			return processFinishedMsg{err}
-		})
+	if opt.Script != "" {
+		return m.runScript(next, opt)
 	}
 	return m, nil
+}
+
+func (m MenuModel) runScript(next MenuState, opt MenuOption) (tea.Model, tea.Cmd) {
+	args := append([]string{opt.Script}, opt.Args...)
+	if opt.Sudo {
+		return m.run(next, "sudo", append([]string{"bash"}, args...)...)
+	}
+	return m.run(next, "bash", args...)
+}
+
+func (m MenuModel) run(next MenuState, name string, args ...string) (tea.Model, tea.Cmd) {
+	c := exec.Command(name, args...)
+	m.nextState = next
+	return m, tea.ExecProcess(c, func(err error) tea.Msg {
+		return processFinishedMsg{err}
+	})
 }
 
 func (m MenuModel) View() string {
