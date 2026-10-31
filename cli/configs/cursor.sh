@@ -131,7 +131,7 @@ configure_cursor_theme() {
 
     if [ ! -d "$built_themes_dir" ] || [ -z "$(ls -A "$built_themes_dir")" ]; then
         _log ERROR "Built cursor themes not found in '$built_themes_dir'."
-        echo "Please run the './build_cursors.sh' script from the project root first." >&2
+        echo "Please run the 'cli/utils/build_cursors.sh' script from the project root first." >&2
         return 1
     fi
 
