@@ -42,11 +42,11 @@ install_rate_mirrors_and_rank() {
     _log INFO "Installing rate-mirrors..."
     install_paru_package "rate-mirrors" "rate-mirrors"
 
-    _log INFO "Running cli/rank_mirrors.sh to rank mirrors..."
-    if [ -f "$repo_dir/cli/rank_mirrors.sh" ]; then
-        bash "$repo_dir/cli/rank_mirrors.sh"
+    _log INFO "Running cli/utils/rank_mirrors.sh to rank mirrors..."
+    if [ -f "$repo_dir/cli/utils/rank_mirrors.sh" ]; then
+        bash "$repo_dir/cli/utils/rank_mirrors.sh"
     else
-        _log ERROR "Rank mirrors script not found at $repo_dir/cli/rank_mirrors.sh"
+        _log ERROR "Rank mirrors script not found at $repo_dir/cli/utils/rank_mirrors.sh"
     fi
     _log SUCCESS "rate-mirrors installed and mirrors ranked."
 }
