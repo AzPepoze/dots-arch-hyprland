@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -14,6 +15,14 @@ import (
 	"tui/internal/repo"
 	"tui/internal/runner"
 	"tui/internal/theme"
+)
+
+const (
+	rowReplaceColor = iota
+	rowModel
+	rowRemoveBg
+	rowSave
+	rowCancel
 )
 
 type AppConfig struct {
@@ -48,14 +57,7 @@ func NewConfigModel(repoDir string) ConfigModel {
 	if dotsDir, err := os.ReadDir(filepath.Join(repoDir, "dots")); err == nil {
 		for _, f := range dotsDir {
 			if f.IsDir() && f.Name() != "base" && f.Name() != "post-install" {
-				found := false
-				for _, m := range modelOpts {
-					if m == f.Name() {
-						found = true
-						break
-					}
-				}
-				if !found {
+				if !slices.Contains(modelOpts, f.Name()) {
 					modelOpts = append(modelOpts, f.Name())
 				}
 			}
@@ -94,18 +96,18 @@ func (m ConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor--
 			}
 		case "down", "j":
-			if m.cursor < 4 {
+			if m.cursor < rowCancel {
 				m.cursor++
 			}
 		case "left", "h":
-			if m.cursor == 1 {
+			if m.cursor == rowModel {
 				if m.modelIdx > 0 {
 					m.modelIdx--
 					m.config.Model = m.models[m.modelIdx]
 				}
 			}
 		case "right", "l":
-			if m.cursor == 1 {
+			if m.cursor == rowModel {
 				if m.modelIdx < len(m.models)-1 {
 					m.modelIdx++
 					m.config.Model = m.models[m.modelIdx]
@@ -113,17 +115,17 @@ func (m ConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case " ", "enter":
 			switch m.cursor {
-			case 0:
+			case rowReplaceColor:
 				m.config.ReplaceColor = !m.config.ReplaceColor
-			case 1:
+			case rowModel:
 				m.modelIdx = (m.modelIdx + 1) % len(m.models)
 				m.config.Model = m.models[m.modelIdx]
-			case 2:
+			case rowRemoveBg:
 				m.config.RemoveBg = !m.config.RemoveBg
-			case 3:
+			case rowSave:
 				m.saved = true
 				return m, tea.Quit
-			case 4:
+			case rowCancel:
 				return m, tea.Quit
 			}
 		}
@@ -181,19 +183,19 @@ func (m ConfigModel) View() string {
 		return lipgloss.NewStyle().Foreground(theme.Red).Render("DISABLED (false)")
 	}
 
-	lines = append(lines, renderRow(0, "Replace QuickShell Color to Catppuccin", boolStr(m.config.ReplaceColor)))
-	lines = append(lines, renderRow(1, "Hardware Model Mode", lipgloss.NewStyle().Foreground(theme.Blue).Render("< "+m.config.Model+" >")))
-	lines = append(lines, renderRow(2, "Remove QuickShell Background image", boolStr(m.config.RemoveBg)))
+	lines = append(lines, renderRow(rowReplaceColor, "Replace QuickShell Color to Catppuccin", boolStr(m.config.ReplaceColor)))
+	lines = append(lines, renderRow(rowModel, "Hardware Model Mode", lipgloss.NewStyle().Foreground(theme.Blue).Render("< "+m.config.Model+" >")))
+	lines = append(lines, renderRow(rowRemoveBg, "Remove QuickShell Background image", boolStr(m.config.RemoveBg)))
 
 	lines = append(lines, "")
 	saveRow := "  [ Save Configuration & Reload ]"
-	if m.cursor == 3 {
+	if m.cursor == rowSave {
 		saveRow = lipgloss.NewStyle().Foreground(theme.Green).Bold(true).Render("> [ Save Configuration & Reload ]")
 	}
 	lines = append(lines, saveRow)
 
 	cancelRow := "  [ Cancel & Exit ]"
-	if m.cursor == 4 {
+	if m.cursor == rowCancel {
 		cancelRow = lipgloss.NewStyle().Foreground(theme.Red).Bold(true).Render("> [ Cancel & Exit ]")
 	}
 	lines = append(lines, cancelRow)
