@@ -40,40 +40,36 @@ func (m *InstallerModel) applyPreset() {
 		"setup_git_credential_management": true,
 	}
 
-	for bIdx := range m.boxes {
-		for iIdx := range m.boxes[bIdx].Items {
-			item := &m.boxes[bIdx].Items[iIdx]
-
-			if item.Type == "essential" {
-				item.IsSelected = true
-				continue
-			}
-
-			if m.useCaseIdx == 3 {
-				item.IsSelected = false
-				continue
-			}
-
-			if item.Func == "install_detected_graphics_stack" {
-				item.IsSelected = (m.graphicsIdx == 0)
-				continue
-			}
-
-			if item.Func == "install_laptop_power_diagnostics" {
-				item.IsSelected = false
-				continue
-			}
-
-			switch m.useCaseIdx {
-			case 0:
-				item.IsSelected = gamingFuncs[item.Func]
-			case 1:
-				item.IsSelected = devFuncs[item.Func]
-			default:
-				item.IsSelected = false
-			}
+	m.forEachItem(func(item *InstallItem) {
+		if item.Type == "essential" {
+			item.IsSelected = true
+			return
 		}
-	}
+
+		if m.useCaseIdx == 3 {
+			item.IsSelected = false
+			return
+		}
+
+		if item.Func == "install_detected_graphics_stack" {
+			item.IsSelected = (m.graphicsIdx == 0)
+			return
+		}
+
+		if item.Func == "install_laptop_power_diagnostics" {
+			item.IsSelected = false
+			return
+		}
+
+		switch m.useCaseIdx {
+		case 0:
+			item.IsSelected = gamingFuncs[item.Func]
+		case 1:
+			item.IsSelected = devFuncs[item.Func]
+		default:
+			item.IsSelected = false
+		}
+	})
 }
 
 func (m InstallerModel) updateWizard(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
@@ -104,11 +100,7 @@ func (m InstallerModel) updateWizard(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		switch m.wizardStep {
 		case WizardHardware:
 			if m.wizardCursor == 2 {
-				for bIdx := range m.boxes {
-					for iIdx := range m.boxes[bIdx].Items {
-						m.boxes[bIdx].Items[iIdx].IsSelected = false
-					}
-				}
+				m.setSelected(func(InstallItem) bool { return false })
 				m.stage = StageMainGrid
 			} else {
 				m.hardwareIdx = m.wizardCursor

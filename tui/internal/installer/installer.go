@@ -72,104 +72,118 @@ func (m InstallerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.stage == StageSetupWizard {
 			return m.updateWizard(msg)
 		}
-		switch msg.String() {
-		case "q", "ctrl+c", "esc":
-			return m, tea.Quit
-
-		case "left", "h":
-			m.activeBox = (m.activeBox - 1 + len(m.boxes)) % len(m.boxes)
-
-		case "right", "l":
-			m.activeBox = (m.activeBox + 1) % len(m.boxes)
-
-		case "up", "k":
-			if m.cursors[m.activeBox] > 0 {
-				m.cursors[m.activeBox]--
-			} else {
-				switch m.activeBox {
-				case 1:
-					m.activeBox = 0
-					if len(m.boxes[0].Items) > 0 {
-						m.cursors[0] = len(m.boxes[0].Items) - 1
-					}
-				case 3:
-					m.activeBox = 2
-					if len(m.boxes[2].Items) > 0 {
-						m.cursors[2] = len(m.boxes[2].Items) - 1
-					}
-				}
-			}
-
-		case "down", "j":
-			itemsLen := len(m.boxes[m.activeBox].Items)
-			if m.cursors[m.activeBox] < itemsLen-1 {
-				m.cursors[m.activeBox]++
-			} else {
-				switch m.activeBox {
-				case 0:
-					m.activeBox = 1
-					m.cursors[1] = 0
-				case 2:
-					m.activeBox = 3
-					m.cursors[3] = 0
-				}
-			}
-
-		case " ":
-			idx := m.cursors[m.activeBox]
-			if len(m.boxes[m.activeBox].Items) > 0 {
-				m.boxes[m.activeBox].Items[idx].IsSelected = !m.boxes[m.activeBox].Items[idx].IsSelected
-			}
-
-		case "a":
-			for bIdx := range m.boxes {
-				for iIdx := range m.boxes[bIdx].Items {
-					m.boxes[bIdx].Items[iIdx].IsSelected = true
-				}
-			}
-
-		case "n":
-			for bIdx := range m.boxes {
-				for iIdx := range m.boxes[bIdx].Items {
-					m.boxes[bIdx].Items[iIdx].IsSelected = false
-				}
-			}
-
-		case "e":
-			for bIdx := range m.boxes {
-				for iIdx := range m.boxes[bIdx].Items {
-					m.boxes[bIdx].Items[iIdx].IsSelected = (m.boxes[bIdx].Items[iIdx].Type == "essential")
-				}
-			}
-
-		case "o":
-			for bIdx := range m.boxes {
-				for iIdx := range m.boxes[bIdx].Items {
-					m.boxes[bIdx].Items[iIdx].IsSelected = (m.boxes[bIdx].Items[iIdx].Type == "essential" || m.boxes[bIdx].Items[iIdx].Type == "essential_laptop")
-				}
-			}
-
-		case "enter":
-			var cmdStrings []string
-			for _, box := range m.boxes {
-				for _, item := range box.Items {
-					if item.IsSelected && item.Func != "" {
-						cmdStrings = append(cmdStrings, item.Func)
-					}
-				}
-			}
-			if len(cmdStrings) > 0 {
-				m.selectedCmd = cmdStrings
-				m.finished = true
-				return m, tea.Quit
-			}
-		}
-
+		return m.updateGrid(msg)
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 	}
-
 	return m, nil
+}
+
+func (m InstallerModel) updateGrid(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "q", "ctrl+c", "esc":
+		return m, tea.Quit
+	case "left", "h", "right", "l", "up", "k", "down", "j":
+		m.navigate(msg.String())
+	case " ":
+		m.toggleCurrent()
+	case "a", "n", "e", "o":
+		m.bulkSelect(msg.String())
+	case "enter":
+		commands := m.collectCommands()
+		if len(commands) > 0 {
+			m.selectedCmd = commands
+			m.finished = true
+			return m, tea.Quit
+		}
+	}
+	return m, nil
+}
+
+func (m *InstallerModel) navigate(key string) {
+	switch key {
+	case "left", "h":
+		m.activeBox = (m.activeBox - 1 + len(m.boxes)) % len(m.boxes)
+	case "right", "l":
+		m.activeBox = (m.activeBox + 1) % len(m.boxes)
+	case "up", "k":
+		if m.cursors[m.activeBox] > 0 {
+			m.cursors[m.activeBox]--
+			return
+		}
+		switch m.activeBox {
+		case 1:
+			m.activeBox = 0
+			if len(m.boxes[0].Items) > 0 {
+				m.cursors[0] = len(m.boxes[0].Items) - 1
+			}
+		case 3:
+			m.activeBox = 2
+			if len(m.boxes[2].Items) > 0 {
+				m.cursors[2] = len(m.boxes[2].Items) - 1
+			}
+		}
+	case "down", "j":
+		itemsLen := len(m.boxes[m.activeBox].Items)
+		if m.cursors[m.activeBox] < itemsLen-1 {
+			m.cursors[m.activeBox]++
+			return
+		}
+		switch m.activeBox {
+		case 0:
+			m.activeBox = 1
+			m.cursors[1] = 0
+		case 2:
+			m.activeBox = 3
+			m.cursors[3] = 0
+		}
+	}
+}
+
+func (m *InstallerModel) toggleCurrent() {
+	idx := m.cursors[m.activeBox]
+	if len(m.boxes[m.activeBox].Items) > 0 {
+		m.boxes[m.activeBox].Items[idx].IsSelected = !m.boxes[m.activeBox].Items[idx].IsSelected
+	}
+}
+
+func (m *InstallerModel) bulkSelect(key string) {
+	switch key {
+	case "a":
+		m.setSelected(func(InstallItem) bool { return true })
+	case "n":
+		m.setSelected(func(InstallItem) bool { return false })
+	case "e":
+		m.setSelected(func(item InstallItem) bool { return item.Type == "essential" })
+	case "o":
+		m.setSelected(func(item InstallItem) bool {
+			return item.Type == "essential" || item.Type == "essential_laptop"
+		})
+	}
+}
+
+func (m *InstallerModel) setSelected(pred func(InstallItem) bool) {
+	m.forEachItem(func(item *InstallItem) {
+		item.IsSelected = pred(*item)
+	})
+}
+
+func (m *InstallerModel) forEachItem(fn func(*InstallItem)) {
+	for bIdx := range m.boxes {
+		for iIdx := range m.boxes[bIdx].Items {
+			fn(&m.boxes[bIdx].Items[iIdx])
+		}
+	}
+}
+
+func (m InstallerModel) collectCommands() []string {
+	var commands []string
+	m.forEachItem(func(item *InstallItem) {
+		if item.IsSelected && item.Func != "" {
+			commands = append(commands, item.Func)
+		}
+	})
+	return commands
 }
 
 func (m InstallerModel) View() string {
@@ -182,8 +196,6 @@ func (m InstallerModel) View() string {
 
 	headerStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#13BCFF")).Padding(0, 1)
 	title := headerStyle.Render("Az Arch Hyprland Package Installer")
-
-	var renderedBoxes []string
 
 	usableWidth := m.width - 8
 	if usableWidth < 70 {
@@ -208,93 +220,106 @@ func (m InstallerModel) View() string {
 		colWidth = usableWidth
 	}
 
-	for bIdx, box := range m.boxes {
-		isFocused := (bIdx == m.activeBox)
-		activeCursor := m.cursors[bIdx]
-
-		var listStrings []string
-
-		boxHeight := 6
-		if bIdx == 4 && colsCount == 3 {
-			boxHeight = 15
-		}
-
-		visibleCount := boxHeight
-		start, end := 0, len(box.Items)
-		if len(box.Items) > visibleCount {
-			start = activeCursor - visibleCount/2
-			if start < 0 {
-				start = 0
-			}
-			end = start + visibleCount
-			if end > len(box.Items) {
-				end = len(box.Items)
-				start = end - visibleCount
-			}
-		}
-
-		for i := start; i < end; i++ {
-			item := box.Items[i]
-			cursorStr := "  "
-			if i == activeCursor && isFocused {
-				cursorStr = "> "
-			}
-
-			checkStr := "[ ]"
-			if item.IsSelected {
-				checkStr = "[x]"
-			}
-
-			line := fmt.Sprintf("%s%s %s", cursorStr, checkStr, item.Text)
-
-			maxTextWidth := colWidth - 8
-			if len(line) > maxTextWidth && maxTextWidth > 10 {
-				line = line[:maxTextWidth] + "..."
-			}
-
-			if i == activeCursor && isFocused {
-				line = lipgloss.NewStyle().Foreground(lipgloss.Color("#98C379")).Bold(true).Render(line)
-			}
-			listStrings = append(listStrings, line)
-		}
-
-		for len(listStrings) < boxHeight {
-			listStrings = append(listStrings, "")
-		}
-
-		content := lipgloss.JoinVertical(lipgloss.Left, listStrings...)
-
-		borderColor := "#2C323C"
-		if isFocused {
-			borderColor = "#98C379"
-		}
-
-		rendered := lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color(borderColor)).
-			Padding(0, 1).
-			Width(colWidth - 2).
-			Render(fmt.Sprintf("%s\n%s", lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#61AFEF")).Render(box.Title), content))
-
-		renderedBoxes = append(renderedBoxes, rendered)
+	renderedBoxes := make([]string, 0, len(m.boxes))
+	for bIdx := range m.boxes {
+		renderedBoxes = append(renderedBoxes, m.renderBox(bIdx, colsCount, colWidth))
 	}
 
-	var finalLayout string
-	if colsCount == 3 {
+	finalLayout := layoutColumns(renderedBoxes, colsCount)
+	descriptionBox := m.renderDescription(usableWidth)
+
+	footerStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#5C6370")).Italic(true)
+	footer := footerStyle.Render("arrows or hjkl: navigate grid/items | space: toggle | a: all | n: none | e: essential | o: laptop | enter: install | q: quit")
+
+	return fmt.Sprintf("\n%s\n\n%s\n\n%s\n\n%s\n", title, finalLayout, descriptionBox, footer)
+}
+
+func (m InstallerModel) renderBox(bIdx, colsCount, colWidth int) string {
+	box := m.boxes[bIdx]
+	isFocused := bIdx == m.activeBox
+	activeCursor := m.cursors[bIdx]
+
+	boxHeight := 6
+	if bIdx == 4 && colsCount == 3 {
+		boxHeight = 15
+	}
+
+	visibleCount := boxHeight
+	start, end := 0, len(box.Items)
+	if len(box.Items) > visibleCount {
+		start = activeCursor - visibleCount/2
+		if start < 0 {
+			start = 0
+		}
+		end = start + visibleCount
+		if end > len(box.Items) {
+			end = len(box.Items)
+			start = end - visibleCount
+		}
+	}
+
+	var listStrings []string
+	for i := start; i < end; i++ {
+		item := box.Items[i]
+		cursorStr := "  "
+		if i == activeCursor && isFocused {
+			cursorStr = "> "
+		}
+
+		checkStr := "[ ]"
+		if item.IsSelected {
+			checkStr = "[x]"
+		}
+
+		line := fmt.Sprintf("%s%s %s", cursorStr, checkStr, item.Text)
+
+		maxTextWidth := colWidth - 8
+		if len(line) > maxTextWidth && maxTextWidth > 10 {
+			line = line[:maxTextWidth] + "..."
+		}
+
+		if i == activeCursor && isFocused {
+			line = lipgloss.NewStyle().Foreground(lipgloss.Color("#98C379")).Bold(true).Render(line)
+		}
+		listStrings = append(listStrings, line)
+	}
+
+	for len(listStrings) < boxHeight {
+		listStrings = append(listStrings, "")
+	}
+
+	content := lipgloss.JoinVertical(lipgloss.Left, listStrings...)
+
+	borderColor := "#2C323C"
+	if isFocused {
+		borderColor = "#98C379"
+	}
+
+	return lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color(borderColor)).
+		Padding(0, 1).
+		Width(colWidth - 2).
+		Render(fmt.Sprintf("%s\n%s", lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#61AFEF")).Render(box.Title), content))
+}
+
+func layoutColumns(renderedBoxes []string, colsCount int) string {
+	switch colsCount {
+	case 3:
 		col1 := lipgloss.JoinVertical(lipgloss.Left, renderedBoxes[0], renderedBoxes[1])
 		col2 := lipgloss.JoinVertical(lipgloss.Left, renderedBoxes[2], renderedBoxes[3])
 		col3 := renderedBoxes[4]
-
-		finalLayout = lipgloss.JoinHorizontal(lipgloss.Top, col1, col2, col3)
-	} else if colsCount == 2 {
+		return lipgloss.JoinHorizontal(lipgloss.Top, col1, col2, col3)
+	case 2:
 		col1 := lipgloss.JoinVertical(lipgloss.Left, renderedBoxes[0], renderedBoxes[1], renderedBoxes[2])
 		col2 := lipgloss.JoinVertical(lipgloss.Left, renderedBoxes[3], renderedBoxes[4])
-
-		finalLayout = lipgloss.JoinHorizontal(lipgloss.Top, col1, col2)
-	} else {
-		finalLayout = lipgloss.JoinVertical(lipgloss.Left, renderedBoxes[0], renderedBoxes[1], renderedBoxes[2], renderedBoxes[3], renderedBoxes[4])
+		return lipgloss.JoinHorizontal(lipgloss.Top, col1, col2)
+	default:
+		return lipgloss.JoinVertical(lipgloss.Left, renderedBoxes[0], renderedBoxes[1], renderedBoxes[2], renderedBoxes[3], renderedBoxes[4])
 	}
+}
 
+func (m InstallerModel) renderDescription(usableWidth int) string {
 	activeBox := m.activeBox
 	activeCursor := m.cursors[activeBox]
 	var descText string
@@ -307,17 +332,12 @@ func (m InstallerModel) View() string {
 		)
 	}
 
-	descriptionBox := lipgloss.NewStyle().
+	return lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("#C678DD")).
 		Padding(0, 1).
 		Width(usableWidth).
 		Render(descText)
-
-	footerStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#5C6370")).Italic(true)
-	footer := footerStyle.Render("arrows or hjkl: navigate grid/items | space: toggle | a: all | n: none | e: essential | o: laptop | enter: install | q: quit")
-
-	return fmt.Sprintf("\n%s\n\n%s\n\n%s\n\n%s\n", title, finalLayout, descriptionBox, footer)
 }
 
 func Run(repoDir string) error {
