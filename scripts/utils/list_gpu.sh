@@ -5,7 +5,7 @@
 # If sourced, REPO_DIR_HELPER will be the directory of the sourcing script.
 # If run directly, REPO_DIR_HELPER will be the directory of this script.
 REPO_DIR_HELPER="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-HELPER_SCRIPT="$(dirname "$REPO_DIR_HELPER")/scripts/install_modules/helpers.sh"
+HELPER_SCRIPT="$(dirname "$(dirname "$REPO_DIR_HELPER")")/scripts/install_modules/helpers.sh"
 
 # Check if helper script exists before sourcing, otherwise define a fallback _log
 if [ -f "$HELPER_SCRIPT" ]; then
