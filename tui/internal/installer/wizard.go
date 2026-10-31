@@ -6,6 +6,8 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	"tui/internal/theme"
 )
 
 type InstallerStage int
@@ -127,9 +129,9 @@ func (m InstallerModel) updateWizard(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 func (m InstallerModel) renderWizard() string {
 	headerStyle := lipgloss.NewStyle().
 		Bold(true).
-		Foreground(lipgloss.Color("#C678DD")).
+		Foreground(theme.Purple).
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("#C678DD")).
+		BorderForeground(theme.Purple).
 		Padding(0, 2).
 		Width(54)
 
@@ -140,13 +142,13 @@ func (m InstallerModel) renderWizard() string {
 	for i, name := range stepNames {
 		var dot string
 		if i < int(m.wizardStep) {
-			dot = lipgloss.NewStyle().Foreground(lipgloss.Color("#98C379")).Bold(true).Render("●")
+			dot = lipgloss.NewStyle().Foreground(theme.Green).Bold(true).Render("●")
 		} else if i == int(m.wizardStep) {
 			dot = lipgloss.NewStyle().Foreground(lipgloss.Color("#E5C07B")).Bold(true).Render("▶")
 		} else {
-			dot = lipgloss.NewStyle().Foreground(lipgloss.Color("#5C6370")).Render("○")
+			dot = lipgloss.NewStyle().Foreground(theme.Grey).Render("○")
 		}
-		label := lipgloss.NewStyle().Foreground(lipgloss.Color("#5C6370")).Render(name)
+		label := lipgloss.NewStyle().Foreground(theme.Grey).Render(name)
 		dotParts = append(dotParts, dot+" "+label)
 	}
 	progress := strings.Join(dotParts, "  ──  ")
@@ -187,9 +189,9 @@ func (m InstallerModel) renderWizard() string {
 		},
 	}
 
-	dimStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#5C6370"))
-	activeStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#98C379")).Bold(true)
-	subtitleStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#5C6370")).Italic(true)
+	dimStyle := lipgloss.NewStyle().Foreground(theme.Grey)
+	activeStyle := lipgloss.NewStyle().Foreground(theme.Green).Bold(true)
+	subtitleStyle := lipgloss.NewStyle().Foreground(theme.Grey).Italic(true)
 
 	if m.wizardStep == WizardSummary {
 		hardwareLabels := []string{"PC / Desktop", "Laptop", "Skip Wizard"}
@@ -235,7 +237,7 @@ func (m InstallerModel) renderWizard() string {
 
 		content := lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("#61AFEF")).
+			BorderForeground(theme.Blue).
 			Padding(1, 2).
 			Width(56).
 			Render(bodyStr)
@@ -269,7 +271,7 @@ func (m InstallerModel) renderWizard() string {
 
 	content := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("#C678DD")).
+		BorderForeground(theme.Purple).
 		Padding(1, 2).
 		Width(56).
 		Render(bodyStr)

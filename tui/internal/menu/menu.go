@@ -12,6 +12,7 @@ import (
 	"tui/internal/logger"
 	"tui/internal/repo"
 	"tui/internal/runner"
+	"tui/internal/theme"
 )
 
 type MenuState int
@@ -222,22 +223,22 @@ func (m MenuModel) View() string {
 		if m.processErr != nil {
 			message = fmt.Sprintf("Process failed: %v. Press Enter to return to the menu...", m.processErr)
 		}
-		return lipgloss.NewStyle().Foreground(lipgloss.Color("#98C379")).Bold(true).Render("\n" + message + "\n")
+		return lipgloss.NewStyle().Foreground(theme.Green).Bold(true).Render("\n" + message + "\n")
 	}
 
 	var lines []string
 
-	headerColor := "#61AFEF"
+	headerColor := theme.Blue
 	titleText := "Az Arch Hyprland Management Menu"
 	opts := m.mainOpts
 
 	if m.state == StateUtilsMenu {
-		headerColor = "#C678DD"
+		headerColor = theme.Purple
 		titleText = "System Utility CLI Tools"
 		opts = m.utilOpts
 	}
 
-	headerStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(headerColor)).Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color(headerColor)).Padding(0, 2)
+	headerStyle := lipgloss.NewStyle().Bold(true).Foreground(headerColor).Border(lipgloss.RoundedBorder()).BorderForeground(headerColor).Padding(0, 2)
 	lines = append(lines, headerStyle.Render(titleText))
 	lines = append(lines, "")
 
@@ -245,7 +246,7 @@ func (m MenuModel) View() string {
 	for i, opt := range opts {
 		if opt.IsHeader {
 			lines = append(lines, "")
-			lines = append(lines, lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#E06C75")).Render(opt.Text))
+			lines = append(lines, lipgloss.NewStyle().Bold(true).Foreground(theme.Red).Render(opt.Text))
 			continue
 		}
 
@@ -255,14 +256,14 @@ func (m MenuModel) View() string {
 		}
 		line := fmt.Sprintf("%s%d) %s", cursorStr, index, opt.Text)
 		if i == m.cursor {
-			line = lipgloss.NewStyle().Foreground(lipgloss.Color("#98C379")).Bold(true).Render(line)
+			line = lipgloss.NewStyle().Foreground(theme.Green).Bold(true).Render(line)
 		}
 		lines = append(lines, line)
 		index++
 	}
 
 	lines = append(lines, "")
-	footerStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#5C6370")).Italic(true)
+	footerStyle := lipgloss.NewStyle().Foreground(theme.Grey).Italic(true)
 	lines = append(lines, footerStyle.Render("up/down or j/k: navigate | enter/space: select | q: quit"))
 
 	return lipgloss.JoinVertical(lipgloss.Left, lines...) + "\n"

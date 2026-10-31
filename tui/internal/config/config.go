@@ -13,6 +13,7 @@ import (
 	"tui/internal/logger"
 	"tui/internal/repo"
 	"tui/internal/runner"
+	"tui/internal/theme"
 )
 
 type AppConfig struct {
@@ -133,7 +134,7 @@ func (m ConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m ConfigModel) View() string {
-	headerStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#C678DD")).Padding(0, 1)
+	headerStyle := lipgloss.NewStyle().Bold(true).Foreground(theme.Purple).Padding(0, 1)
 	title := headerStyle.Render("Az Arch Hyprland Configuration Editor")
 
 	var lines []string
@@ -168,39 +169,39 @@ func (m ConfigModel) View() string {
 
 		row := fmt.Sprintf("%s%s%s%s", cursor, label, strings.Repeat(" ", spacing), val)
 		if idx == m.cursor {
-			return lipgloss.NewStyle().Foreground(lipgloss.Color("#98C379")).Bold(true).Render(row)
+			return lipgloss.NewStyle().Foreground(theme.Green).Bold(true).Render(row)
 		}
 		return row
 	}
 
 	boolStr := func(b bool) string {
 		if b {
-			return lipgloss.NewStyle().Foreground(lipgloss.Color("#98C379")).Render("ENABLED (true)")
+			return lipgloss.NewStyle().Foreground(theme.Green).Render("ENABLED (true)")
 		}
-		return lipgloss.NewStyle().Foreground(lipgloss.Color("#E06C75")).Render("DISABLED (false)")
+		return lipgloss.NewStyle().Foreground(theme.Red).Render("DISABLED (false)")
 	}
 
 	lines = append(lines, renderRow(0, "Replace QuickShell Color to Catppuccin", boolStr(m.config.ReplaceColor)))
-	lines = append(lines, renderRow(1, "Hardware Model Mode", lipgloss.NewStyle().Foreground(lipgloss.Color("#61AFEF")).Render("< "+m.config.Model+" >")))
+	lines = append(lines, renderRow(1, "Hardware Model Mode", lipgloss.NewStyle().Foreground(theme.Blue).Render("< "+m.config.Model+" >")))
 	lines = append(lines, renderRow(2, "Remove QuickShell Background image", boolStr(m.config.RemoveBg)))
 
 	lines = append(lines, "")
 	saveRow := "  [ Save Configuration & Reload ]"
 	if m.cursor == 3 {
-		saveRow = lipgloss.NewStyle().Foreground(lipgloss.Color("#98C379")).Bold(true).Render("> [ Save Configuration & Reload ]")
+		saveRow = lipgloss.NewStyle().Foreground(theme.Green).Bold(true).Render("> [ Save Configuration & Reload ]")
 	}
 	lines = append(lines, saveRow)
 
 	cancelRow := "  [ Cancel & Exit ]"
 	if m.cursor == 4 {
-		cancelRow = lipgloss.NewStyle().Foreground(lipgloss.Color("#E06C75")).Bold(true).Render("> [ Cancel & Exit ]")
+		cancelRow = lipgloss.NewStyle().Foreground(theme.Red).Bold(true).Render("> [ Cancel & Exit ]")
 	}
 	lines = append(lines, cancelRow)
 
 	content := lipgloss.JoinVertical(lipgloss.Left, lines...)
-	box := lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("#61AFEF")).Padding(1, 2).Width(boxWidth).Render(content)
+	box := lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(theme.Blue).Padding(1, 2).Width(boxWidth).Render(content)
 
-	footerStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#5C6370")).Italic(true)
+	footerStyle := lipgloss.NewStyle().Foreground(theme.Grey).Italic(true)
 	footer := footerStyle.Render("space/enter: toggle or select | left/right: change model | up/down: navigate")
 
 	return fmt.Sprintf("\n%s\n\n%s\n\n%s\n", title, box, footer)

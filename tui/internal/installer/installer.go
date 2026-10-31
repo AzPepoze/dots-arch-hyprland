@@ -11,6 +11,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"tui/internal/runner"
+	"tui/internal/theme"
 )
 
 type GridBox struct {
@@ -228,7 +229,7 @@ func (m InstallerModel) View() string {
 	finalLayout := layoutColumns(renderedBoxes, colsCount)
 	descriptionBox := m.renderDescription(usableWidth)
 
-	footerStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#5C6370")).Italic(true)
+	footerStyle := lipgloss.NewStyle().Foreground(theme.Grey).Italic(true)
 	footer := footerStyle.Render("arrows or hjkl: navigate grid/items | space: toggle | a: all | n: none | e: essential | o: laptop | enter: install | q: quit")
 
 	return fmt.Sprintf("\n%s\n\n%s\n\n%s\n\n%s\n", title, finalLayout, descriptionBox, footer)
@@ -279,7 +280,7 @@ func (m InstallerModel) renderBox(bIdx, colsCount, colWidth int) string {
 		}
 
 		if i == activeCursor && isFocused {
-			line = lipgloss.NewStyle().Foreground(lipgloss.Color("#98C379")).Bold(true).Render(line)
+			line = lipgloss.NewStyle().Foreground(theme.Green).Bold(true).Render(line)
 		}
 		listStrings = append(listStrings, line)
 	}
@@ -290,17 +291,17 @@ func (m InstallerModel) renderBox(bIdx, colsCount, colWidth int) string {
 
 	content := lipgloss.JoinVertical(lipgloss.Left, listStrings...)
 
-	borderColor := "#2C323C"
+	borderColor := lipgloss.Color("#2C323C")
 	if isFocused {
-		borderColor = "#98C379"
+		borderColor = theme.Green
 	}
 
 	return lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color(borderColor)).
+		BorderForeground(borderColor).
 		Padding(0, 1).
 		Width(colWidth - 2).
-		Render(fmt.Sprintf("%s\n%s", lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#61AFEF")).Render(box.Title), content))
+		Render(fmt.Sprintf("%s\n%s", lipgloss.NewStyle().Bold(true).Foreground(theme.Blue).Render(box.Title), content))
 }
 
 func layoutColumns(renderedBoxes []string, colsCount int) string {
@@ -334,7 +335,7 @@ func (m InstallerModel) renderDescription(usableWidth int) string {
 
 	return lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("#C678DD")).
+		BorderForeground(theme.Purple).
 		Padding(0, 1).
 		Width(usableWidth).
 		Render(descText)
