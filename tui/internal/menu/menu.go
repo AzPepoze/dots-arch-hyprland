@@ -10,6 +10,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"tui/internal/logger"
+	"tui/internal/repo"
+	"tui/internal/runner"
 )
 
 type MenuState int
@@ -41,7 +43,7 @@ type MenuOption struct {
 }
 
 func scriptPath(repoDir, rel string) string {
-	return filepath.Join(repoDir, "cli", rel)
+	return repo.CLIScript(repoDir, rel)
 }
 
 type processFinishedMsg struct {
@@ -66,7 +68,7 @@ func NewMenuModel(repoDir string) MenuModel {
 		mainOpts: []MenuOption{
 			{Text: "Run Package Installer", Action: actionInstall},
 			{Text: "Open Configuration Editor", Action: actionConfig},
-			{Text: "Load Dotfile Configurations", Script: scriptPath(repoDir, "load_configs.sh")},
+			{Text: "Load Dotfile Configurations", Script: repo.LoadConfigsScript(repoDir)},
 			{Text: "Update System (Normal)", Script: filepath.Join(repoDir, "update.sh"), Args: []string{"--skip-cursor", "--skip-gpu"}},
 			{Text: "Update System (Full)", Script: filepath.Join(repoDir, "update.sh"), Args: []string{"--full"}},
 			{Text: "Open Utility Tools Menu", Action: actionUtils},
@@ -175,9 +177,9 @@ func (m MenuModel) handleUtilsSelect() (tea.Model, tea.Cmd) {
 func (m MenuModel) selectOption(next MenuState, opt MenuOption) (tea.Model, tea.Cmd) {
 	switch opt.Action {
 	case actionInstall:
-		return m.run(next, os.Args[0], "install")
+		return m.run(next, exec.Command(os.Args[0], "install"))
 	case actionConfig:
-		return m.run(next, os.Args[0], "config")
+		return m.run(next, exec.Command(os.Args[0], "config"))
 	case actionUtils:
 		m.state = StateUtilsMenu
 		m.cursor = 1
@@ -197,15 +199,14 @@ func (m MenuModel) selectOption(next MenuState, opt MenuOption) (tea.Model, tea.
 }
 
 func (m MenuModel) runScript(next MenuState, opt MenuOption) (tea.Model, tea.Cmd) {
-	args := append([]string{opt.Script}, opt.Args...)
 	if opt.Sudo {
-		return m.run(next, "sudo", append([]string{"bash"}, args...)...)
+		args := append([]string{"bash", opt.Script}, opt.Args...)
+		return m.run(next, exec.Command("sudo", args...))
 	}
-	return m.run(next, "bash", args...)
+	return m.run(next, runner.Bash(opt.Script, opt.Args...))
 }
 
-func (m MenuModel) run(next MenuState, name string, args ...string) (tea.Model, tea.Cmd) {
-	c := exec.Command(name, args...)
+func (m MenuModel) run(next MenuState, c *exec.Cmd) (tea.Model, tea.Cmd) {
 	m.nextState = next
 	return m, tea.ExecProcess(c, func(err error) tea.Msg {
 		return processFinishedMsg{err}

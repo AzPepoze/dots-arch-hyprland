@@ -1,7 +1,7 @@
 package installer
 
 import (
-	"path/filepath"
+	"tui/internal/repo"
 )
 
 type InstallItem struct {
@@ -230,7 +230,7 @@ func getInstallItems(repoDir string) []InstallItem {
 		{
 			Type:        "essential",
 			Text:        "Load all configurations (GPU, cursor, etc)",
-			Func:        "bash " + filepath.Join(repoDir, "cli", "load_configs.sh"),
+			Func:        "bash " + repo.LoadConfigsScript(repoDir),
 			Group:       "Shell & Terminal",
 			Description: "Loads and applies various system configurations, including GPU settings, cursor themes, and other dotfiles.",
 		},

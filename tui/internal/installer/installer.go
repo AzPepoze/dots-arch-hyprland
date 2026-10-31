@@ -3,13 +3,14 @@ package installer
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	"tui/internal/runner"
 )
 
 type GridBox struct {
@@ -348,10 +349,7 @@ func Run(repoDir string) error {
 			return err
 		}
 
-		c := exec.Command("bash", tmpFile.Name())
-		c.Stdout = os.Stdout
-		c.Stderr = os.Stderr
-		c.Stdin = os.Stdin
+		c := runner.Bash(tmpFile.Name())
 		return c.Run()
 	}
 

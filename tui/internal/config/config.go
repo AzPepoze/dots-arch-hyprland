@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -12,6 +11,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"tui/internal/logger"
+	"tui/internal/repo"
+	"tui/internal/runner"
 )
 
 type AppConfig struct {
@@ -233,12 +234,7 @@ func Run(repoDir string) error {
 		}
 
 		logger.Success("config", "Configuration saved successfully! Reloading dotfiles...")
-		loadConfigsScript := filepath.Join(repoDir, "cli", "load_configs.sh")
-		c := exec.Command("bash", loadConfigsScript, "--skip-gpu", "--skip-cursor")
-		c.Stdout = os.Stdout
-		c.Stderr = os.Stderr
-		c.Stdin = os.Stdin
-		return c.Run()
+		return runner.Bash(repo.LoadConfigsScript(repoDir), "--skip-gpu", "--skip-cursor").Run()
 	}
 
 	return nil
