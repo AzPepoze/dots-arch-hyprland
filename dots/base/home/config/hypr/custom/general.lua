@@ -37,6 +37,9 @@ hl.config({
     },
     cursor = {
         no_hardware_cursors = 1
+    },
+    render = {
+        cm_auto_hdr = 0
     }
 })
 
